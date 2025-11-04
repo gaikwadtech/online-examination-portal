@@ -1,20 +1,14 @@
-import dbConnect from '@/lib/dbConnect';
 import { NextResponse } from 'next/server';
+import dbConnect from '@/lib/dbConnect'; // (Assuming your db connection file is at /lib/dbConnect.ts)
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    await dbConnect(); // Connect to the database
-    
-    return NextResponse.json(
-      { message: 'Success: Connected to MongoDB!' },
-      { status: 200 }
-    );
-
+    await dbConnect();
+    // If connection is successful
+    return NextResponse.json({ message: 'Success: Database connected' }, { status: 200 });
   } catch (error) {
+    // If connection fails
     console.error('Database connection error:', error);
-    return NextResponse.json(
-      { message: 'Error: Failed to connect to MongoDB' },
-      { status: 500 }
-    );
-  }
+    return NextResponse.json({ message: 'Error: Failed to connect to database' }, { status: 500 });
+  }
 }
