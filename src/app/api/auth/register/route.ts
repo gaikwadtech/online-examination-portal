@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     await dbConnect();
 
     // 2. Get data from the request body
-    const { name, email, password } = await request.json();
+    const { name, email, password, role } = await request.json(); 
 
     // 3. Validate that the email does not already exist
     const existingUser = await User.findOne({ email });
@@ -29,6 +29,7 @@ export async function POST(request: Request) {
       name,
       email,
       password: hashedPassword,
+      role: role || 'student'
       // The 'role' will automatically default to 'student'
       // as defined in our User.ts schema
     });
