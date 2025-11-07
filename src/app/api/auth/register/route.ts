@@ -1,7 +1,8 @@
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
-import bcrypt from "bcryptjs"; // For password hashing
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { createToken } from "@/lib/auth"; // <-- 1. ADD THIS IMPORT
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +17,7 @@ export async function POST(request: Request) {
     if (existingUser) {
       return NextResponse.json(
         { message: "User with this email already exists" },
-        { status: 400 } // 400 means Bad Request
+        { status: 400 } 
       );
     }
 
@@ -30,23 +31,33 @@ export async function POST(request: Request) {
       email,
       password: hashedPassword,
       role: role || 'student'
-      // The 'role' will automatically default to 'student'
-      // as defined in our User.ts schema
     });
 
     await newUser.save();
 
-    // 6. Send a success response
-    return NextResponse.json(
+    // 6. CREATE THE TOKEN (This is where your line goes)
+    const token = await createToken(newUser);
+
+    // 7. Send a success response AND set the cookie
+    const response = NextResponse.json(
       { message: "User registered successfully" },
-      { status: 201 } // 201 means "Created"
+      { status: 201 }
     );
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    return response; // <-- Return the new response with the cookie
 
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
       { message: "An error occurred during registration" },
-      { status: 500 } // 500 means Internal Server Error
+      { status: 500 }
     );
   }
 }

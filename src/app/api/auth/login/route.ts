@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = createToken(user);
+    const token = await createToken(user);
 
     const response = NextResponse.json(
       { message: "Login successful" },
