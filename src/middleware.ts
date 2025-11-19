@@ -8,8 +8,14 @@ export async function middleware(request: NextRequest) {
 
   // --- Check for protected pages (e.g., /dashboard, /profile) ---
   // Add any other pages you want to protect here
-  const protectedPages = ['/dashboard', '/create-exam', '/profile']; 
-  
+  const protectedPages = [
+  '/dashboard',
+  '/admin',
+  '/student',
+  '/create-exam',
+  '/profile'
+];
+
   const isProtectedPage = protectedPages.some((path) => pathname.startsWith(path));
 
   if (isProtectedPage) {

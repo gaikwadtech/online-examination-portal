@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 interface User {
   name: string;
@@ -14,87 +15,95 @@ interface User {
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
 
+  // Fetch user info from localStorage or API
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await fetch('/api/auth/me', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch {
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUserData();
-  }, [pathname]); 
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
+    }
+    setLoading(false);
+  }, [pathname]);
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout');
+  const handleLogout = () => {
+    localStorage.removeItem('user');
     setUser(null);
-    router.push('/login');
-    router.refresh();
+    router.push('/'); // redirect to login
   };
 
   return (
-    <header className="w-full bg-white text-black shadow-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-1">
-        <Link href="/" className="flex items-center">
-          <Image
-            src="/logo1.png"
-            alt="TestEdge Logo"
-            width={160}
-            height={40}
-            priority
-          />
-        </Link>
+    <motion.header
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full bg-white text-black shadow-md sticky top-0 z-50 backdrop-blur-lg bg-opacity-80"
+    >
+      <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
 
-        <div className="flex items-center space-x-4">
-          {loading ? (
-            <div className="h-10 w-44"></div>
-          ) : user ? (
-            <>
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="rounded-md bg-white p-2 shadow-sm hover:bg-gray-100 border border-gray-300"
-              >
-                <Image
-                  src="/logout.png"
-                  alt="Logout"
-                  width={20}
-                  height={20}
-                />
-              </button>
-            </>
-          ) : (
-            <>
+        {/* LOGO */}
+        <motion.div whileHover={{ scale: 1.05 }}>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo111.png"
+              className="w-32 translate-x-5"
+              alt="TestEdge Logo"
+              width={160}
+              height={40}
+              priority
+            />
+          </Link>
+        </motion.div>
+
+        {/* NAV LINKS */}
+        <div className="flex items-center space-x-8 text-sm font-medium">
+  {['/', '/about', '/features', '/pricing'].map((link, idx) => (
+    <motion.div key={idx} whileHover={{ scale: 1.1 }}>
+      <Link
+        href={link === '/' ? '/' : link}
+        className={`hover:text-blue-600 ${
+          pathname === link ? 'border-b-2 border-blue-600 pb-1' : ''
+        }`}
+      >
+        {link === '/' ? 'Home' :
+         link === '/about' ? 'About' :
+         link === '/features' ? 'Features' :
+         'Pricing'}
+      </Link>
+    </motion.div>
+  ))}
+</div>
+
+        {/* AUTH / USER BUTTONS */}
+        {!loading && !user && (
+          <div className="flex items-center space-x-4">
+            <motion.div whileHover={{ scale: 1.1 }}>
               <Link
                 href="/register"
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 -translate-x-5"
               >
                 Sign Up
               </Link>
+            </motion.div>
+
+            <motion.div whileHover={{ scale: 1.1 }}>
               <Link
                 href="/login"
-                className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
+                className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 -translate-x-5"
               >
                 Sign In
               </Link>
-            </>
-          )}
-        </div>
+            </motion.div>
+          </div>
+        )}
+
+    
+      
+
       </nav>
-    </header>
+    </motion.header>
   );
 }
