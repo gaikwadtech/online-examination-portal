@@ -18,11 +18,14 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Fetch user info from localStorage or API
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      }
     } else {
       setUser(null);
     }
@@ -32,77 +35,88 @@ export default function Header() {
   const handleLogout = () => {
     localStorage.removeItem('user');
     setUser(null);
-    router.push('/'); // redirect to login
+    router.push('/');
   };
 
   return (
     <motion.header
-      initial={{ y: -50, opacity: 0 }}
+      initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="w-full bg-white text-black shadow-md sticky top-0 z-50 backdrop-blur-lg bg-opacity-80"
+      transition={{ duration: 0.35 }}
+      className="w-full bg-white text-black shadow-md sticky top-0 z-50"
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-2">
+      <nav className="mx-auto flex max-w-7xl items-center py-2 px-4">
 
-        {/* LOGO */}
-        <motion.div whileHover={{ scale: 1.05 }}>
-          <Link href="/" className="flex items-center">
+        {/* LEFT SIDE — LOGO */}
+        <div className="grow">
+          <Link href="/">
             <Image
               src="/logo111.png"
-              className="w-32 translate-x-5"
               alt="TestEdge Logo"
-              width={160}
-              height={40}
+              width={130}
+              height={35}
+              className="w-28"
               priority
             />
           </Link>
-        </motion.div>
+        </div>
 
-        {/* NAV LINKS */}
-        <div className="flex items-center space-x-8 text-sm font-medium">
-  {['/', '/about', '/features', '/pricing'].map((link, idx) => (
-    <motion.div key={idx} whileHover={{ scale: 1.1 }}>
-      <Link
-        href={link === '/' ? '/' : link}
-        className={`hover:text-blue-600 ${
-          pathname === link ? 'border-b-2 border-blue-600 pb-1' : ''
-        }`}
-      >
-        {link === '/' ? 'Home' :
-         link === '/about' ? 'About' :
-         link === '/features' ? 'Features' :
-         'Pricing'}
-      </Link>
-    </motion.div>
-  ))}
-</div>
+        {/* RIGHT SIDE — NAV LINKS + AUTH BUTTONS */}
+        <div className="flex items-center gap-8">
 
-        {/* AUTH / USER BUTTONS */}
-        {!loading && !user && (
-          <div className="flex items-center space-x-4">
-            <motion.div whileHover={{ scale: 1.1 }}>
+          {/* NAV LINKS */}
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/about', label: 'About' },
+              { href: '/features', label: 'Features' },
+              { href: '/pricing', label: 'Pricing' },
+            ].map((item) => (
+              <motion.div key={item.href} whileHover={{ scale: 1.05 }}>
+                <Link
+                  href={item.href}
+                  className={`hover:text-blue-600 ${
+                    pathname === item.href ? 'border-b-2 border-blue-600 pb-1' : ''
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* AUTH BUTTONS */}
+          {!loading && !user && (
+            <div className="flex items-center gap-3">
               <Link
                 href="/register"
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 -translate-x-5"
+                className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
               >
                 Sign Up
               </Link>
-            </motion.div>
 
-            <motion.div whileHover={{ scale: 1.1 }}>
               <Link
                 href="/login"
-                className="rounded-md bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300 -translate-x-5"
+                className="rounded-md bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200"
               >
                 Sign In
               </Link>
-            </motion.div>
-          </div>
-        )}
+            </div>
+          )}
 
-    
-      
+          {!loading && user && (
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-medium">{user.name}</span>
+              <button
+                onClick={handleLogout}
+                className="text-sm px-3 py-1 border rounded hover:bg-gray-50"
+              >
+                Logout
+              </button>
+            </div>
+          )}
 
+        </div>
       </nav>
     </motion.header>
   );
