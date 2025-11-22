@@ -16,7 +16,7 @@ function getJwtSecret() {
  */
 export async function createToken(user: IUser) {
   const payload = {
-    id: user._id,
+    id: (user._id as any).toString(), // <-- THIS IS THE FIX
     role: user.role,
   };
   
