@@ -5,43 +5,47 @@ import React, { useEffect, useState } from "react";
 import BulkUploadExcel from "./BulkUploadExcel";
 import { useRouter } from "next/navigation";
 
+/**
+ * QuestionsPage - top-level component that switches between:
+ * - choose view (cards)
+ * - single question form
+ * - bulk upload (imported)
+ * - update/manage questions (table with edit/delete)
+ */
 export default function QuestionsPage() {
-  // allow only the views we need: choose, single, bulk, list
-  const [view, setView] = useState<"choose" | "single" | "bulk" | "list">("choose");
+  // add "update" to the allowed views
+  const [view, setView] = useState<"choose" | "single" | "bulk" | "update">(
+    "choose"
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
         {view === "choose" ? (
-          <ChooseQuestionAdd
-            onSelect={(v) => setView(v)}
-            onShowAll={() => setView("list")}
-          />
+          // note: onShowAll is removed — we now have three cards including Update
+          <ChooseQuestionAdd onSelect={(v) => setView(v)} />
         ) : view === "single" ? (
           <SingleQuestionManagement onBack={() => setView("choose")} />
         ) : view === "bulk" ? (
           <BulkUploadExcel onBack={() => setView("choose")} />
         ) : (
-          <AllQuestions onBack={() => setView("choose")} />
+          // Update / Manage Questions
+          <UpdateQuestions onBack={() => setView("choose")} />
         )}
       </div>
     </div>
   );
 }
 
-/**
- * ChooseQuestionAdd
- *
- * Note: router is used only inside this component so it exists on client side.
- * The Back to Dashboard button will navigate to /admin by default; change the path
- * in router.push(...) if your dashboard lives at a different route.
- */
+/* -------------------------
+   ChooseQuestionAdd + Card
+   ------------------------- */
+
 function ChooseQuestionAdd({
   onSelect,
-  onShowAll,
 }: {
-  onSelect: (v: "single" | "bulk") => void;
-  onShowAll: () => void;
+  // allow "update" now
+  onSelect: (v: "single" | "bulk" | "update") => void;
 }) {
   const router = useRouter();
 
@@ -50,43 +54,39 @@ function ChooseQuestionAdd({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Question Management</h1>
-          <p className="text-gray-800 mt-1">Manage your question bank and categories</p>
+          <p className="text-gray-800 mt-1">
+            Manage your question bank and categories
+          </p>
         </div>
         <div>
-          {/* CHANGE PATH if your dashboard root differs (e.g. "/" or "/admin/dashboard") */}
           <button
             onClick={() => router.push("/admin")}
-            className="bg-pink-600 text-white px-4 py-2 rounded"
+            className="bg-pink-600 text-white px-4 py-2 rounded shadow"
+            aria-label="Back to Dashboard"
           >
             Back to Dashboard
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-center w-full">
-            <h2 className="text-xl font-semibold text-gray-900">Choose Question Addition Method</h2>
-            <p className="text-gray-800 mt-1">Select how you want to add questions</p>
-          </div>
-          {/* "All Questions" button */}
-          <div className="ml-4">
-            <button
-              onClick={onShowAll}
-              className="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-900"
-            >
-              All Questions
-            </button>
-          </div>
+      <div className="bg-white rounded-xl shadow p-8 border border-gray-200">
+        <div className="text-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            Choose Question Addition Method
+          </h2>
+          <p className="text-gray-800 mt-1">Select how you want to add questions</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* THREE cards now: single | bulk | update */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card
             onClick={() => onSelect("single")}
             title="Add Single Question"
             subtitle="Create individual questions with custom categories and options"
             icon={
-              <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold">+</div>
+              <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600 font-bold">
+                +
+              </div>
             }
           />
 
@@ -95,7 +95,20 @@ function ChooseQuestionAdd({
             title="Bulk Upload"
             subtitle="Upload multiple questions at once using Excel template"
             icon={
-              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">↓</div>
+              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 font-bold">
+                ↓
+              </div>
+            }
+          />
+
+          <Card
+            onClick={() => onSelect("update")}
+            title="Update / Manage Questions"
+            subtitle="Search, edit or delete existing questions"
+            icon={
+              <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold">
+                ⚙
+              </div>
             }
           />
         </div>
@@ -104,9 +117,24 @@ function ChooseQuestionAdd({
   );
 }
 
-function Card({ title, subtitle, icon, onClick }: { title: string; subtitle: string; icon: React.ReactNode; onClick: () => void }) {
+function Card({
+  title,
+  subtitle,
+  icon,
+  onClick,
+}: {
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}) {
   return (
-    <button onClick={onClick} className="text-left border-2 border-dashed border-gray-200 rounded-lg p-6 hover:shadow transition flex items-start gap-4">
+    <button
+      onClick={onClick}
+      className="text-left border-2 border-dashed border-gray-200 rounded-lg p-6 hover:shadow transition flex items-start gap-4 bg-white"
+      aria-label={title}
+      title={title}
+    >
       <div>{icon}</div>
       <div className="flex-1">
         <div className="font-semibold text-lg text-gray-900">{title}</div>
@@ -116,48 +144,62 @@ function Card({ title, subtitle, icon, onClick }: { title: string; subtitle: str
   );
 }
 
-// -------------------------
-// All Questions view (NEW)
-// -------------------------
-type QOption = { id: string; text: string; isCorrect: boolean };
+/* -------------------------
+   Types
+   ------------------------- */
+
+type QOption = { id: string; text: string; isCorrect?: boolean };
 type QuestionDTO = {
   id: string;
   category: string;
   text: string;
+  options: QOption[];
   createdAt?: string | number | Date;
-  options?: QOption[];
 };
 
-function AllQuestions({ onBack }: { onBack: () => void }) {
+/* -------------------------
+   UpdateQuestions Component
+   (your component — unchanged from your latest working code)
+   ------------------------- */
+
+export function UpdateQuestions({ onBack }: { onBack?: () => void }) {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<QuestionDTO[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // track expanded rows by question id
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  // UI
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [total, setTotal] = useState(0);
 
+  // row actions
+  const [editing, setEditing] = useState<QuestionDTO | null>(null);
+  const [deleting, setDeleting] = useState<QuestionDTO | null>(null);
+  const [multiSelect, setMultiSelect] = useState<Record<string, boolean>>({});
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // load list (server should accept query, page, pageSize)
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/questions"); // GET
+      const url = new URL("/api/questions", window.location.origin);
+      url.searchParams.set("q", query || "");
+      url.searchParams.set("category", categoryFilter || "");
+      url.searchParams.set("page", String(page));
+      url.searchParams.set("pageSize", String(pageSize));
+
+      const res = await fetch(url.toString());
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error || `HTTP ${res.status}`);
+        throw new Error(body?.message || `HTTP ${res.status}`);
       }
       const body = await res.json();
-      const data: QuestionDTO[] = (body.data || []).map((d: any) => ({
-        id: String(d.id ?? d._id ?? ""),
-        category: String(d.category ?? ""),
-        text: String(d.text ?? ""),
-        createdAt: d.createdAt ?? d.createdAt,
-        options: (d.options || []).map((o: any) => ({
-          id: String(o.id ?? o._id ?? ""),
-          text: String(o.text ?? ""),
-          isCorrect: !!o.isCorrect,
-        })),
-      }));
-      setQuestions(data);
+      // expected { data: QuestionDTO[], total: number }
+      setQuestions(body.data || []);
+      setTotal(body.total ?? (body.data || []).length);
     } catch (err: any) {
       setError(err?.message || "Failed to load questions");
     } finally {
@@ -167,141 +209,437 @@ function AllQuestions({ onBack }: { onBack: () => void }) {
 
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, query, categoryFilter]);
 
-  // helper: return truncated text by words
-  const truncateWords = (text: string, limit: number) => {
-    if (!text) return "";
-    const words = text.trim().split(/\s+/);
-    if (words.length <= limit) return text;
-    return words.slice(0, limit).join(" ");
+  const toggleSelect = (id: string) => {
+    setMultiSelect((m) => ({ ...m, [id]: !m[id] }));
   };
 
-  const toggleExpand = (id: string) => {
-    setExpanded((s) => ({ ...s, [id]: !s[id] }));
+  const selectAllOnPage = () => {
+    const newMap = { ...multiSelect };
+    questions.forEach((q) => (newMap[q.id] = true));
+    setMultiSelect(newMap);
   };
 
-  // how many words to show before "more"
-  const WORD_LIMIT = 15;
+  const clearSelection = () => setMultiSelect({});
 
+  const confirmBulkDelete = async () => {
+    const ids = Object.keys(multiSelect).filter((k) => multiSelect[k]);
+    if (!ids.length) return alert("Select at least one question to delete.");
+    if (!confirm(`Delete ${ids.length} questions? This cannot be undone.`)) return;
+
+    setIsProcessing(true);
+    try {
+      const res = await fetch("/api/questions/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Server ${res.status}`);
+      }
+      // remove deleted from UI
+      setQuestions((s) => s.filter((q) => !ids.includes(q.id)));
+      clearSelection();
+    } catch (err: any) {
+      alert(err?.message || "Failed to delete selected");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const startEdit = (q: QuestionDTO) => {
+    // clone to avoid accidental mutation
+    setEditing({ ...q, options: q.options.map((o) => ({ ...o })) });
+  };
+
+  const saveEdit = async (payload: QuestionDTO) => {
+    setIsProcessing(true);
+    try {
+      const res = await fetch(`/api/questions/${payload.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Server ${res.status}`);
+      }
+      // update local list
+      setQuestions((s) => s.map((q) => (q.id === payload.id ? payload : q)));
+      setEditing(null);
+    } catch (err: any) {
+      alert(err?.message || "Failed to update question");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const confirmDelete = async (q: QuestionDTO) => {
+    if (!confirm("Delete this question? This action cannot be undone.")) return;
+    setIsProcessing(true);
+    try {
+      const res = await fetch(`/api/questions/${q.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.message || `Server ${res.status}`);
+      }
+      setQuestions((s) => s.filter((x) => x.id !== q.id));
+      setDeleting(null);
+    } catch (err: any) {
+      alert(err?.message || "Failed to delete question");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /* ---------- UI ---------- */
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">All Questions</h1>
-        <div className="flex gap-2">
-          <button onClick={onBack} className="bg-pink-600 text-white px-3 py-2 rounded">Back to Questions</button>
-          <button onClick={load} className="bg-pink-600 text-white px-3 py-2 rounded">Refresh</button>
+        <h2 className="text-2xl font-bold text-gray-900">Update / Manage Questions</h2>
+
+        <div className="flex gap-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-md shadow"
+              aria-label="Back to questions"
+            >
+              Back
+            </button>
+          )}
+
+          <button
+            onClick={load}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-900 px-4 py-2 rounded-md shadow-sm"
+            aria-label="Refresh questions"
+          >
+            Refresh
+          </button>
         </div>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3 mb-5">
+        <input
+          aria-label="Search question text"
+          className="border border-gray-300 rounded-md px-4 py-2 flex-1 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-400"
+          placeholder="Search question text..."
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(1);
+          }}
+        />
+
+        <input
+          aria-label="Filter by category"
+          className="border border-gray-300 rounded-md px-4 py-2 w-56 bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-400"
+          placeholder="Filter category..."
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setPage(1);
+          }}
+        />
+
+        <button
+          onClick={selectAllOnPage}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-md"
+          aria-label="Select all questions on page"
+        >
+          Select All
+        </button>
+
+        <button
+          onClick={clearSelection}
+          className="bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-md"
+          aria-label="Clear selection"
+        >
+          Clear
+        </button>
+
+        <button
+          onClick={confirmBulkDelete}
+          disabled={isProcessing}
+          className={`px-4 py-2 rounded-md text-white shadow ${
+            isProcessing ? "bg-red-400" : "bg-red-600 hover:bg-red-700"
+          }`}
+          aria-label="Delete selected questions"
+        >
+          Delete Selected
+        </button>
+      </div>
+
+      {/* Loading / Error / Content */}
       {loading ? (
-        <div className="text-gray-600">Loading questions…</div>
+        <div className="text-gray-700 text-lg">Loading questions…</div>
       ) : error ? (
-        <div className="text-red-600">{error}</div>
+        <div className="bg-red-100 text-red-700 px-4 py-3 rounded-md font-semibold shadow">
+          ❌ {error}
+        </div>
       ) : questions.length === 0 ? (
-        <div className="text-gray-600">No questions found.</div>
+        <div className="text-gray-700 text-lg">No questions found.</div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto bg-white rounded-lg border border-gray-200 shadow-sm">
           <table className="min-w-full text-sm">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="p-2 text-black text-bold">Category</th>
-                <th className="p-2 text-black">Question</th>
-                <th className="p-2 text-black">Options</th>
-                <th className="p-2 text-black">Created</th>
+            <thead className="bg-gray-100 border-b">
+              <tr className="text-left">
+                <th className="p-3 text-gray-900 font-semibold">Sel</th>
+                <th className="p-3 text-gray-900 font-semibold">Category</th>
+                <th className="p-3 text-gray-900 font-semibold">Question</th>
+                <th className="p-3 text-gray-900 font-semibold">Options</th>
+                <th className="p-3 text-gray-900 font-semibold">Created</th>
+                <th className="p-3 text-gray-900 font-semibold">Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {questions.map((q) => {
-                const isExpanded = !!expanded[q.id];
-                const shouldTruncate = q.text.split(/\s+/).length > WORD_LIMIT;
-                const preview = truncateWords(q.text, WORD_LIMIT);
+              {questions.map((q) => (
+                <tr key={q.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select question ${q.id}`}
+                      title={`Select question ${q.id}`}
+                      checked={!!multiSelect[q.id]}
+                      onChange={() => toggleSelect(q.id)}
+                      className="w-4 h-4 accent-blue-600"
+                    />
+                  </td>
 
-                return (
-                  <tr key={q.id} className="border-b last:border-b-0 align-top">
-                    <td className="p-3 align-top w-40">
-                      <div className="text-sm font-semibold text-gray-900">{q.category}</div>
-                    </td>
+                  <td className="p-3 font-medium text-gray-900">{q.category}</td>
 
-                    <td className="p-3 align-top max-w-2xl">
-                      <div className="text-base text-gray-900 leading-relaxed wrap-break-word" title={q.text}>
-                        {isExpanded ? (
-                          // full text when expanded
-                          <>
-                            <div>{q.text}</div>
-                            {shouldTruncate && (
-                              <button
-                                onClick={() => toggleExpand(q.id)}
-                                className="mt-2 text-sm text-blue-600 hover:underline"
-                                aria-expanded="true"
-                                aria-controls={`q-${q.id}`}
-                              >
-                                Show less
-                              </button>
-                            )}
-                          </>
-                        ) : (
-                          // truncated preview + "more" button if needed
-                          <>
-                            <div id={`q-${q.id}`}>
-                              {shouldTruncate ? `${preview}…` : q.text}
-                            </div>
-                            {shouldTruncate && (
-                              <button
-                                onClick={() => toggleExpand(q.id)}
-                                className="mt-2 text-sm text-blue-600 hover:underline"
-                                aria-expanded="false"
-                                aria-controls={`q-${q.id}`}
-                              >
-                                …more
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
+                  <td className="p-3 text-gray-800">
+                    {q.text.length > 120 ? q.text.slice(0, 120) + "…" : q.text}
+                  </td>
 
-                    <td className="p-3 align-top w-80">
-                      <div className="flex flex-col gap-2">
-                        {(q.options || []).map((o) => (
-                          <div
-                            key={o.id}
-                            className={
-                              o.isCorrect
-                                ? "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-800 text-sm font-medium w-max"
-                                : "inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm w-max"
-                            }
-                          >
-                            <span className="truncate max-w-md">{o.text}</span>
-                            {o.isCorrect ? (
-                              <span className="text-green-700 font-bold">✓</span>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
+                  <td className="p-3">
+                    <div className="flex flex-col gap-2">
+                      {q.options.map((o) => (
+                        <span
+                          key={o.id}
+                          className={`px-3 py-1 rounded-md text-sm shadow ${
+                            o.isCorrect
+                              ? "bg-green-100 text-green-800 border border-green-300"
+                              : "bg-gray-200 text-gray-800 border border-gray-300"
+                          }`}
+                        >
+                          {o.text}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
 
-                    <td className="p-3 align-top">
-                      <div className="text-sm text-gray-600">
-                        {q.createdAt ? new Date(q.createdAt).toLocaleString() : "-"}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                  <td className="p-3 text-gray-700">
+                    {q.createdAt ? new Date(q.createdAt).toLocaleString() : "-"}
+                  </td>
+
+                  <td className="p-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => startEdit(q)}
+                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow"
+                        aria-label={`Edit question ${q.id}`}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDeleting(q);
+                          confirmDelete(q);
+                        }}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-md shadow"
+                        aria-label={`Delete question ${q.id}`}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div className="mt-4 p-3 flex items-center justify-between">
+            <span className="text-sm text-gray-700">
+              Showing {questions.length} of {total}
+            </span>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="px-4 py-2 border rounded-md bg-yellow-400 hover:bg-yellow-600 text-white"
+                aria-label="Previous page"
+              >
+                Prev
+              </button>
+
+              <span className="text-gray-900 font-semibold">Page {page}</span>
+
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                className="px-4 py-2 border rounded-md bg-green-600 hover:bg-green-700 text-white"
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* Edit modal (unchanged logic but styled) */}
+      {editing && (
+        <EditQuestionModal
+          question={editing}
+          onClose={() => setEditing(null)}
+          onSave={saveEdit}
+          isProcessing={isProcessing}
+        />
       )}
     </div>
   );
 }
 
+/* -------------------------
+   EditQuestionModal
+   ------------------------- */
 
-// -------------------------
-// Single Question management UI
-// (same as your existing component — unchanged)
-// -------------------------
+function EditQuestionModal({
+  question,
+  onClose,
+  onSave,
+  isProcessing,
+}: {
+  question: QuestionDTO;
+  onClose: () => void;
+  onSave: (q: QuestionDTO) => Promise<void>;
+  isProcessing: boolean;
+}) {
+  const [local, setLocal] = useState<QuestionDTO>(question);
+
+  useEffect(() => setLocal(question), [question]);
+
+  const updateOptionText = (id: string, text: string) => {
+    setLocal((s) => ({ ...s, options: s.options.map((o) => (o.id === id ? { ...o, text } : o)) }));
+  };
+
+  const toggleCorrect = (id: string) => {
+    setLocal((s) => ({ ...s, options: s.options.map((o) => ({ ...o, isCorrect: o.id === id })) }));
+  };
+
+  const addOption = () => {
+    setLocal((s) => ({ ...s, options: [...s.options, { id: `opt${Date.now()}`, text: "", isCorrect: false }] }));
+  };
+
+  const removeOption = (id: string) => {
+    setLocal((s) => ({ ...s, options: s.options.filter((o) => o.id !== id) }));
+  };
+
+  const save = () => {
+    // basic validation
+    if (!local.text.trim()) return alert("Question text required");
+    const filled = local.options.filter((o) => o.text.trim());
+    if (filled.length < 2) return alert("At least 2 options required");
+    if (!local.options.some((o) => o.isCorrect)) return alert("Select a correct option");
+    onSave(local);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="edit-question-title">
+      <div className="w-full max-w-3xl bg-white rounded-lg shadow p-6 overflow-auto max-h-[90vh] border border-gray-200">
+        <div className="flex items-center justify-between mb-4">
+          <h3 id="edit-question-title" className="text-lg font-semibold text-gray-900">
+            Edit Question
+          </h3>
+          <div className="flex gap-2">
+            <button onClick={onClose} className="px-3 py-1 bg-red-700 rounded hover:bg-red-400" aria-label="Close edit dialog">
+              Close
+            </button>
+          </div>
+        </div>
+
+        <label htmlFor="edit-category" className="block text-sm mb-1 text-gray-700">
+          Category
+        </label>
+        <input
+          id="edit-category"
+          value={local.category}
+          onChange={(e) => setLocal({ ...local, category: e.target.value })}
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-3 bg-white text-gray-900"
+          aria-label="Edit category"
+          placeholder="Category"
+        />
+
+        <label htmlFor="edit-question-text" className="block text-sm mb-1 text-gray-700">
+          Question
+        </label>
+        <textarea
+          id="edit-question-text"
+          value={local.text}
+          onChange={(e) => setLocal({ ...local, text: e.target.value })}
+          className="w-full border border-gray-300 rounded px-3 py-2 mb-3 h-28 bg-white text-gray-900"
+          aria-label="Edit question text"
+          placeholder="Enter the question text"
+        />
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="font-medium text-gray-800">Options</label>
+            <button onClick={addOption} className="text-sm bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700" aria-label="Add option">
+              Add Option
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {local.options.map((opt, idx) => (
+              <div key={opt.id} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name={`correct-${local.id ?? "editing"}`}
+                  aria-label={`Mark option ${idx + 1} as correct`}
+                  title={`Mark option ${idx + 1} as correct`}
+                  checked={!!opt.isCorrect}
+                  onChange={() => toggleCorrect(opt.id)}
+                  className="accent-blue-600"
+                />
+                <input
+                  value={opt.text}
+                  onChange={(e) => updateOptionText(opt.id, e.target.value)}
+                  className="flex-1 border border-gray-300 rounded px-3 py-2 bg-white text-gray-900"
+                  aria-label={`Option ${idx + 1} text`}
+                  placeholder={`Option ${idx + 1}`}
+                />
+                <button onClick={() => removeOption(opt.id)} className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" aria-label={`Remove option ${idx + 1}`}>
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 flex justify-end gap-2">
+          <button onClick={onClose} className="px-4 py-2 border rounded bg-red-600 text-white hover:bg-red-700" aria-label="Cancel editing">
+            Cancel
+          </button>
+          <button onClick={save} disabled={isProcessing} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" aria-label="Save changes">
+            {isProcessing ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------
+   SingleQuestionManagement (unchanged core behavior)
+   ------------------------- */
 
 type Option = { id: string; text: string };
 
@@ -414,12 +752,16 @@ function SingleQuestionManagement({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white rounded-lg shadow p-6 border border-gray-200">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Single Question Management</h1>
         <div className="flex gap-2">
-          <button onClick={onBack} className="bg-pink-600 text-white px-3 py-2 rounded">Back to Questions</button>
-          <button onClick={resetForm} className="bg-pink-600 text-white  px-3 py-2 rounded">Cancel</button>
+          <button onClick={onBack} className="bg-pink-600 text-white px-3 py-2 rounded shadow" aria-label="Back to questions">
+            Back to Questions
+          </button>
+          <button onClick={resetForm} className="bg-pink-600 text-white  px-3 py-2 rounded shadow" aria-label="Cancel creation">
+            Cancel
+          </button>
         </div>
       </div>
 
@@ -427,22 +769,30 @@ function SingleQuestionManagement({ onBack }: { onBack: () => void }) {
         <section>
           <h2 className="font-semibold mb-2 text-gray-900">Add New Question</h2>
 
-          <label className="block text-sm text-gray-800 mb-1">Category</label>
+          <label className="block text-sm text-gray-800 mb-1" htmlFor="single-category">
+            Category
+          </label>
           <input
+            id="single-category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             placeholder="Enter question category (e.g., Mathematics, Science, etc.)"
-            className="w-full border rounded px-3 py-2 mb-4 text-gray-900"
+            className="w-full border border-gray-300 rounded px-3 py-2 mb-4 text-gray-900 bg-white"
             disabled={loading}
+            aria-label="Question category"
           />
 
-          <label className="block text-sm text-gray-800 mb-1">Question</label>
+          <label className="block text-sm text-gray-800 mb-1" htmlFor="single-question">
+            Question
+          </label>
           <textarea
+            id="single-question"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Enter your question here..."
-            className="w-full border rounded px-3 py-2 h-28 mb-4 text-gray-900"
+            className="w-full border border-gray-300 rounded px-3 py-2 h-28 mb-4 text-gray-900 bg-white"
             disabled={loading}
+            aria-label="Question text"
           />
 
           <div>
@@ -451,25 +801,34 @@ function SingleQuestionManagement({ onBack }: { onBack: () => void }) {
             <div className="space-y-3">
               {options.map((opt, idx) => (
                 <div key={opt.id} className="flex items-center gap-3">
-                  <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2" aria-label={`Select option ${idx + 1} as correct`}>
                     <input
                       type="radio"
-                      name="correct"
+                      name="correct-single"
                       checked={correct === opt.id}
                       onChange={() => setCorrect(opt.id)}
                       disabled={loading}
+                      aria-label={`Mark option ${idx + 1} as correct`}
+                      className="accent-blue-600"
                     />
                   </label>
 
                   <input
+                    id={`single-option-${opt.id}`}
                     value={opt.text}
                     onChange={(e) => updateOptionText(opt.id, e.target.value)}
                     placeholder={`Option ${idx + 1}`}
-                    className="flex-1 border rounded px-3 py-2 text-gray-900"
+                    className="flex-1 border border-gray-300 rounded px-3 py-2 text-gray-900 bg-white"
                     disabled={loading}
+                    aria-label={`Option ${idx + 1} text`}
                   />
 
-                  <button onClick={() => removeOption(opt.id)} className="bg-red-600 text-white px-3 py-1 rounded" disabled={loading || options.length <= 2}>
+                  <button
+                    onClick={() => removeOption(opt.id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+                    disabled={loading || options.length <= 2}
+                    aria-label={`Remove option ${idx + 1}`}
+                  >
                     Remove
                   </button>
                 </div>
@@ -477,7 +836,7 @@ function SingleQuestionManagement({ onBack }: { onBack: () => void }) {
             </div>
 
             <div className="mt-4">
-              <button onClick={addOption} className="bg-green-600 text-white px-4 py-2 rounded" disabled={loading || options.length >= 20}>
+              <button onClick={addOption} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" disabled={loading || options.length >= 20} aria-label="Add option">
                 Add Option
               </button>
             </div>
@@ -494,7 +853,7 @@ function SingleQuestionManagement({ onBack }: { onBack: () => void }) {
         )}
 
         <div className="flex justify-end items-center gap-3">
-          <button onClick={createQuestion} className="bg-blue-600 text-white px-5 py-2 rounded disabled:opacity-50" disabled={loading}>
+          <button onClick={createQuestion} className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 disabled:opacity-50" disabled={loading} aria-label="Create question">
             {loading ? "Saving..." : "Create Question"}
           </button>
         </div>
