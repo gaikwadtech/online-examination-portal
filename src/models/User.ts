@@ -18,7 +18,7 @@ const UserSchema: Schema<IUser> = new Schema(
     email: {
       type: String,
       required: [true, 'Please provide your email'],
-      unique: true, 
+      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -28,12 +28,12 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'teacher'], 
-      default: 'student', 
+      enum: ['student', 'teacher'],
+      default: 'student',
     },
   },
   {
-    timestamps: true, 
+    timestamps: true,
   }
 );
 
