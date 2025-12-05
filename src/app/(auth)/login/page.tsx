@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ADMIN_USER } from '@/data/adminUser';
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,41 +19,26 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      if (role === 'teacher') {
-        // Hardcoded admin login
-        setTimeout(() => {
-          if (email === ADMIN_USER.email && password === ADMIN_USER.password) {
-            localStorage.setItem(
-              'user',
-              JSON.stringify({
-                name: ADMIN_USER.name,
-                email: ADMIN_USER.email,
-                role: ADMIN_USER.role,
-              })
-            );
-            router.push('/admin');
-          } else {
-            setError('Invalid teacher email or password');
-          }
-          setLoading(false);
-        }, 500);
-      } else {
-        // Student login via API
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, role }),
-        });
+      // Unified login for both Student and Teacher
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (res.ok) {
-          // store the returned user object in localStorage
-          localStorage.setItem('user', JSON.stringify(data.user));
-          router.push('/student');
+      if (res.ok) {
+        // store the returned user object in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        if (role === 'teacher') {
+          router.push('/admin');
         } else {
-          setError(data.message || 'Invalid student credentials');
+          router.push('/student');
         }
+      } else {
+        setError(data.message || 'Invalid credentials');
       }
     } catch (err) {
       setError('Something went wrong. Please try again.');
