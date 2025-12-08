@@ -32,6 +32,7 @@
   display: flex;
   width: max-content;
   animation: scroll 60s linear infinite;
+  will-change: transform;
 }
 /* ================================
    SAVE TREES SECTION — NORMAL CSS
@@ -147,4 +148,19 @@
   100% {
     transform: scale(1.1);
   }
+}
+
+/* Performance optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, a {
+  will-change: transform;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }

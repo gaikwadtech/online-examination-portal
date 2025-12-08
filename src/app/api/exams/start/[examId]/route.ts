@@ -25,6 +25,9 @@ export async function GET(req: NextRequest, context: any) {
     }
 
     const decoded: any = await verifyToken(token);
+    if (!decoded || decoded.role !== "student") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const studentId = decoded.id;
 
@@ -37,6 +40,13 @@ export async function GET(req: NextRequest, context: any) {
       );
     }
 
+    if (assignment.status === "completed") {
+      return NextResponse.json(
+        { error: "Exam already completed" },
+        { status: 400 }
+      );
+    }
+
     const exam = await Exam.findById(examId)
       .populate({
         path: "questions",
@@ -46,6 +56,10 @@ export async function GET(req: NextRequest, context: any) {
 
     if (!exam) {
       return NextResponse.json({ error: "Exam not found" }, { status: 404 });
+    }
+
+    if (exam.isActive === false) {
+      return NextResponse.json({ error: "Exam is inactive" }, { status: 400 });
     }
 
     if (!assignment.startedAt) {

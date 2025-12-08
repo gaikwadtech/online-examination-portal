@@ -8,7 +8,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center">
 
       {/* HERO SECTION */}
-      <section className="relative w-full overflow-hidden bg-linear-to-br from-blue-50 via-white to-blue-100 px-4 py-24 text-center md:py-36">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-24 text-center md:py-36">
 
         {/* Background Blur Circles */}
         <div className="absolute top-10 left-10 h-48 w-48 rounded-full bg-blue-300 opacity-30 blur-3xl"></div>
@@ -42,14 +42,14 @@ export default function HomePage() {
         >
           <Link
             href="/register"
-            className="rounded-xl bg-blue-600 px-8 py-3 text-lg font-semibold text-white shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all"
+            className="rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-3 text-lg font-semibold text-white shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 transform"
           >
             Get Started
           </Link>
 
           <Link
             href="/login"
-            className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-gray-800 shadow-lg hover:bg-gray-100 hover:shadow-xl transition-all border"
+            className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-gray-800 shadow-lg hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 transform border border-gray-200"
           >
             Sign In
           </Link>
@@ -69,8 +69,8 @@ export default function HomePage() {
 
             {/* Card 1 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-green-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-emerald-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Mock Tests</h3>
               <p className="mt-4 text-gray-600">
@@ -80,8 +80,8 @@ export default function HomePage() {
 
             {/* Card 2 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-blue-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-blue-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Role-Based Access</h3>
               <p className="mt-4 text-gray-600">
@@ -91,8 +91,8 @@ export default function HomePage() {
 
             {/* Card 3 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-pink-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-pink-100 via-rose-50 to-fuchsia-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-pink-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Instant Results</h3>
               <p className="mt-4 text-gray-600">
@@ -176,7 +176,7 @@ export default function HomePage() {
     </div>
   </div>
 </section>
-<section className="w-full bg-linear-to-r from-purple-50 via-blue-50 to-pink-50 py-20">
+<section className="w-full bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 py-20">
   <div className="max-w-7xl mx-auto px-6 text-center">
     <h2 className="text-4xl font-bold text-gray-900 mb-6 animate-fadeIn">
       Who It's For
@@ -187,24 +187,33 @@ export default function HomePage() {
     </p>
 
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="bg-linear-to-br from-yellow-100 to-yellow-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-yellow-800">Students</h3>
-        <p className="text-yellow-900">Track progress, take exams, and view results easily.</p>
-      </div>
-      <div className="bg-linear-to-br from-green-100 to-green-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-green-800">Teachers</h3>
-        <p className="text-green-900">Manage exams, students, and analyze performance efficiently.</p>
-      </div>
-      <div className="bg-linear-to-br from-purple-100 to-purple-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-purple-800">Institutions</h3>
-        <p className="text-purple-900">Oversee and improve learning outcomes across your organization.</p>
-      </div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-amber-100 via-yellow-50 to-orange-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-amber-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-amber-800">Students</h3>
+        <p className="text-amber-900">Track progress, take exams, and view results easily.</p>
+      </motion.div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-emerald-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-emerald-800">Teachers</h3>
+        <p className="text-emerald-900">Manage exams, students, and analyze performance efficiently.</p>
+      </motion.div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-violet-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-violet-800">Institutions</h3>
+        <p className="text-violet-900">Oversee and improve learning outcomes across your organization.</p>
+      </motion.div>
     </div>
   </div>
 </section>
 
 {/* BENEFITS FOR SCHOOLS / INSTITUTES */}
-<section className="w-full py-20 bg-linear-to-br from-blue-50 via-white to-blue-100">
+<section className="w-full py-20 bg-gradient-to-br from-blue-50 via-white to-blue-100">
   <div className="mx-auto max-w-7xl px-6">
 
     <motion.h2

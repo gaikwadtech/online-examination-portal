@@ -11,31 +11,44 @@ import {
   AiOutlineBarChart,
 } from "react-icons/ai";
 
+type Role = "teacher" | "student";
 interface User {
   name: string;
   email: string;
-  role: "teacher" | "student";
+  role: Role;
+  photo?: string;
 }
 
 // <-- NOTE: Sidebar now accepts the collapsed prop
 export default function Sidebar({ collapsed }: { collapsed: boolean }) {
-  const [role, setRole] = useState<User["role"] | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
+  const [loadingRole, setLoadingRole] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const user: User = JSON.parse(storedUser);
-        setRole(user.role);
-      } catch {
+    const loadRole = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user: User = JSON.parse(storedUser);
+          setRole(user.role as Role);
+        } catch {
+          setRole(null);
+        }
+      } else {
         setRole(null);
       }
-    } else {
-      setRole(null);
-    }
-  }, []);
+      setLoadingRole(false);
+    };
 
-  if (!role) return null;
+    loadRole();
+    const handle = () => loadRole();
+    window.addEventListener("storage", handle);
+    window.addEventListener("user-updated", handle as EventListener);
+    return () => {
+      window.removeEventListener("storage", handle);
+      window.removeEventListener("user-updated", handle as EventListener);
+    };
+  }, []);
 
   const teacherMenu = [
     { title: "Dashboard", path: "/admin", icon: <AiOutlineDashboard /> },
@@ -43,7 +56,6 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
     { title: "Student Management", path: "/admin/student-management", icon: <AiOutlineTeam /> },
     { title: "Exam Management", path: "/admin/exam-management", icon: <AiOutlineFileText /> },
     { title: "Questions", path: "/admin/questions", icon: <AiOutlineQuestionCircle /> },
-    { title: "Analysis", path: "/admin/analysis", icon: <AiOutlineBarChart /> },
   ];
 
   const studentMenu = [
@@ -51,10 +63,34 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
     { title: "Profile", path: "/student/profile", icon: <AiOutlineUser /> },
     { title: "Exam", path: "/student/exam", icon: <AiOutlineFileText /> },
     { title: "Result", path: "/student/result", icon: <AiOutlineBarChart /> },
-    { title: "Analysis", path: "/student/analysis", icon: <AiOutlineBarChart /> },
   ];
 
   const menuItems = role === "teacher" ? teacherMenu : studentMenu;
+
+  // keep layout stable while loading or missing role
+  if (loadingRole) {
+    return (
+      <aside
+        className={`${collapsed ? "w-20" : "w-64"} fixed top-16 left-0 h-[calc(100vh-64px)] z-40 bg-gradient-to-b from-gray-800 via-gray-900 to-black text-white shadow-lg transition-all duration-300`}
+      >
+        <div className="px-3 py-4 border-b border-gray-700">
+          <div className="h-6 w-24 bg-gray-700/60 rounded animate-pulse" />
+        </div>
+      </aside>
+    );
+  }
+
+  if (!role) {
+    return (
+      <aside
+        className={`${collapsed ? "w-20" : "w-64"} fixed top-16 left-0 h-[calc(100vh-64px)] z-40 bg-gradient-to-b from-gray-800 via-gray-900 to-black text-white shadow-lg transition-all duration-300`}
+      >
+        <div className="px-3 py-4 border-b border-gray-700">
+          <span className="text-sm text-gray-300">No role</span>
+        </div>
+      </aside>
+    );
+  }
 
   const widthClass = collapsed ? "w-20" : "w-64";
 
@@ -78,7 +114,7 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
             <li key={item.title}>
               <Link
                 href={item.path}
-                className={`flex items-center gap-3 py-3 px-3 rounded-lg hover:bg-yellow-500 hover:text-black transition-colors ${collapsed ? "justify-center" : "pl-4"}`}
+                className={`flex items-center gap-3 py-3 px-3 rounded-lg hover:bg-gradient-to-r hover:from-yellow-400 hover:to-yellow-500 hover:text-black transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${collapsed ? "justify-center" : "pl-4"}`}
                 title={item.title}
               >
                 <span className="text-lg">{item.icon}</span>

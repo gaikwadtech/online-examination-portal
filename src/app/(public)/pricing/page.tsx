@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen w-full bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 py-16 px-6">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-16 px-6">
 
       {/* HEADER */}
       <motion.h1
@@ -40,9 +40,13 @@ export default function PricingPage() {
             <li>✔ Email Support</li>
           </ul>
 
-          <button className="w-full mt-6 bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 rounded-xl hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+          >
             Choose Plan
-          </button>
+          </motion.button>
         </motion.div>
 
         {/* STANDARD PLAN (MOST POPULAR) */}
@@ -50,7 +54,7 @@ export default function PricingPage() {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="p-8 bg-linear-to-b from-blue-600 to-blue-700 text-white rounded-2xl shadow-lg border border-blue-200 hover:shadow-2xl scale-105"
+          className="p-8 bg-gradient-to-b from-blue-600 to-blue-700 text-white rounded-2xl shadow-lg border border-blue-200 hover:shadow-2xl scale-105"
         >
           <h2 className="text-2xl font-bold">Pro (Most Popular)</h2>
           <p className="mt-2 opacity-90">For colleges & coaching centers</p>
@@ -63,9 +67,13 @@ export default function PricingPage() {
             <li>✔ Priority Support</li>
           </ul>
 
-          <button className="w-full mt-6 bg-white text-blue-700 py-2 rounded-xl hover:bg-gray-100 transition font-semibold">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full mt-6 bg-white text-blue-700 py-2 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+          >
             Choose Plan
-          </button>
+          </motion.button>
         </motion.div>
 
         {/* ENTERPRISE PLAN */}
@@ -85,9 +93,13 @@ export default function PricingPage() {
             <li>✔ Dedicated Support</li>
           </ul>
 
-          <button className="w-full mt-6 bg-purple-600 text-white py-2 rounded-xl hover:bg-purple-700 transition">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full mt-6 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white py-2 rounded-xl hover:from-purple-700 hover:to-fuchsia-700 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+          >
             Contact Sales
-          </button>
+          </motion.button>
         </motion.div>
 
       </div>

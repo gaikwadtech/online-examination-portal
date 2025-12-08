@@ -115,10 +115,44 @@ export async function GET(req: NextRequest) {
     // Fetch assignments and populate exam details
     const assignments = await ExamAssignment.find({ studentId })
       .populate("examId") // <-- This needs Exam model registered
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
-    // Filter out assignments where examId is null
-    const validAssignments = assignments.filter((a: any) => a.examId);
+    // Filter out assignments where examId is null and map to include all needed fields
+    const validAssignments = await Promise.all(
+      assignments
+        .filter((a: any) => a.examId)
+        .map(async (a: any) => {
+          // Validate status: if marked as completed but missing required data, reset to assigned
+          let status = a.status || "assigned";
+          if ((status === "completed" || status === "submitted") && (!a.completedAt || a.score === undefined)) {
+            // Invalid completed status - reset to assigned
+            status = "assigned";
+            // Update in database
+            await ExamAssignment.findByIdAndUpdate(a._id, {
+              status: "assigned",
+              $unset: { completedAt: "", score: "", percentage: "", passed: "" }
+            });
+          }
+          
+          return {
+            _id: a._id.toString(),
+            examId: {
+              _id: a.examId._id.toString(),
+              title: a.examId.title,
+              category: a.examId.category,
+              duration: a.examId.duration,
+              passPercentage: a.examId.passPercentage,
+              questions: a.examId.questions || [],
+            },
+            status: status,
+            assignedAt: a.assignedAt || a.createdAt,
+            completedAt: a.completedAt,
+            score: a.score,
+            percentage: a.percentage,
+          };
+        })
+    );
 
     return NextResponse.json(
       { assignments: validAssignments },

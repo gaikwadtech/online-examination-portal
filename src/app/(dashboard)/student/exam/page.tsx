@@ -14,8 +14,11 @@ interface ExamAssignment {
     passPercentage: number;
     questions: string[];
   };
-  status: "pending" | "completed";
+  status: "assigned" | "pending" | "completed" | "submitted";
   assignedAt: string;
+  completedAt?: string;
+  score?: number;
+  percentage?: number;
 }
 
 export default function StudentExamsPage() {
@@ -74,7 +77,7 @@ export default function StudentExamsPage() {
             return (
               <div
                 key={assignment._id}
-                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col"
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-xl hover:border-indigo-300 transition-all duration-300 transform hover:scale-105 flex flex-col"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -91,12 +94,12 @@ export default function StudentExamsPage() {
 
                   <div
                     className={`p-2 rounded-full ${
-                      assignment.status === "completed"
+                      assignment.status === "completed" || assignment.status === "submitted"
                         ? "bg-green-100 text-green-600"
                         : "bg-yellow-100 text-yellow-600"
                     }`}
                   >
-                    {assignment.status === "completed" ? (
+                    {assignment.status === "completed" || assignment.status === "submitted" ? (
                       <CheckCircle size={18} />
                     ) : (
                       <Clock size={18} />
@@ -120,22 +123,37 @@ export default function StudentExamsPage() {
                 </div>
 
                 <div className="pt-4 border-t border-gray-100">
-                  {assignment.status === "pending" ? (
+                  {assignment.status === "pending" || assignment.status === "assigned" ? (
                     <Link
-                      href={`/student/exam/${exam._id}`} // ✅ IMPORTANT
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium shadow-sm"
+                      href={`/student/exam/${exam._id}`}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-lg hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                       <PlayCircle size={18} />
                       Start Exam
                     </Link>
                   ) : (
-                    <button
-                      disabled
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed font-medium"
-                    >
-                      <CheckCircle size={18} />
-                      Completed
-                    </button>
+                    <div className="space-y-2">
+                      <button
+                        disabled
+                        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 bg-gray-100 text-gray-500 rounded-lg cursor-not-allowed font-medium"
+                      >
+                        <CheckCircle size={18} />
+                        Completed
+                      </button>
+                      {assignment.score !== undefined && (
+                        <div className="text-center text-sm">
+                          <span className="text-gray-600">Score: </span>
+                          <span className="font-semibold text-indigo-600">
+                            {assignment.score} / {exam.questions?.length || 0}
+                          </span>
+                          {assignment.percentage !== undefined && (
+                            <span className="text-gray-600 ml-2">
+                              ({assignment.percentage.toFixed(1)}%)
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

@@ -4,10 +4,13 @@ import dbConnect from "@/lib/dbConnect";
 import "@/models/Exam";
 import "@/models/Question";
 import "@/models/ExamAssignment";
+import "@/models/ExamResult";
 
 import Exam from "@/models/Exam";
 import ExamAssignment from "@/models/ExamAssignment";
+import ExamResult from "@/models/ExamResult";
 import { verifyToken } from "@/lib/auth";
+import mongoose from "mongoose";
 
 export async function POST(req: NextRequest, context: any) {
   try {
@@ -27,18 +30,28 @@ export async function POST(req: NextRequest, context: any) {
     }
 
     const decoded: any = await verifyToken(token);
+    if (!decoded || decoded.role !== "student") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     const studentId = decoded.id;
 
     // ✅ get submitted answers
     const body = await req.json();
     const answers: Record<string, string> = body.answers || {};
 
-    // ✅ verify assignment exists
+    // ✅ verify assignment exists and not already completed
     const assignment: any = await ExamAssignment.findOne({ studentId, examId });
     if (!assignment) {
       return NextResponse.json(
         { error: "Exam not assigned" },
         { status: 403 }
+      );
+    }
+
+    if (assignment.status === "completed") {
+      return NextResponse.json(
+        { error: "Exam already submitted" },
+        { status: 400 }
       );
     }
 
@@ -52,7 +65,10 @@ export async function POST(req: NextRequest, context: any) {
     // 🧮 SCORING + REVIEW BUILDING
     // -----------------------------
     let score = 0;
+    let correctAnswers = 0;
+    let wrongAnswers = 0;
     const review: any[] = [];
+    const answerRecords: any[] = [];
 
     exam.questions.forEach((q: any) => {
       const selected = answers[q._id];
@@ -64,7 +80,12 @@ export async function POST(req: NextRequest, context: any) {
       );
 
       const isCorrect = selected && correctId && selected === correctId;
-      if (isCorrect) score++;
+      if (isCorrect) {
+        score++;
+        correctAnswers++;
+      } else if (selected) {
+        wrongAnswers++;
+      }
 
       review.push({
         qid: q._id.toString(),
@@ -72,6 +93,13 @@ export async function POST(req: NextRequest, context: any) {
         selectedText: selectedOption?.text || "Not answered",
         correctText: correctOption?.text || "",
         correct: !!isCorrect,
+      });
+
+      answerRecords.push({
+        questionId: q._id,
+        selectedOptionId: selected ? new mongoose.Types.ObjectId(selected) : null,
+        correctOptionId: correctOption?._id || null,
+        isCorrect: !!isCorrect,
       });
     });
 
@@ -88,6 +116,35 @@ export async function POST(req: NextRequest, context: any) {
     assignment.passed = passed;
     assignment.completedAt = new Date();
     await assignment.save();
+
+    // -----------------------------
+    // 💾 UPSERT EXAM RESULT
+    // -----------------------------
+    const completedAt = assignment.completedAt || new Date();
+    const startedAt = assignment.startedAt || completedAt;
+    const timeTakenSeconds = Math.max(
+      0,
+      Math.round((completedAt.getTime() - startedAt.getTime()) / 1000)
+    );
+
+    await ExamResult.findOneAndUpdate(
+      { examId, studentId },
+      {
+        examId,
+        studentId,
+        score,
+        totalQuestions: total,
+        percentage,
+        result: passed ? "pass" : "fail",
+        correctAnswers,
+        wrongAnswers,
+        startedAt,
+        completedAt,
+        timeTakenSeconds,
+        answers: answerRecords,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // -----------------------------
     // 📦 RESPONSE

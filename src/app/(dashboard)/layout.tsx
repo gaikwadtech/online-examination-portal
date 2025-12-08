@@ -10,6 +10,7 @@ interface User {
   name: string;
   email: string;
   role: string;
+  photo?: string;
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -37,13 +38,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       // ignore errors
     }
 
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      router.push("/login");
-      return;
-    }
-    setUser(JSON.parse(storedUser));
-    setLoading(false);
+    const loadUser = () => {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        router.push("/login");
+        return;
+      }
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+
+    const handleStorage = () => loadUser();
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("user-updated", handleStorage as EventListener);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("user-updated", handleStorage as EventListener);
+    };
   }, [router]);
 
   const handleLogout = () => {
@@ -76,7 +94,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <button
           onClick={toggleSidebar}
           aria-label={collapsed ? "Open sidebar" : "Close sidebar"}
-          className="fixed top-20 left-4 z-50 bg-gray-800 text-white p-2 rounded-full shadow-lg hover:bg-gray-700 transition"
+          className="fixed top-20 left-4 z-50 bg-gradient-to-r from-gray-800 to-gray-900 text-white p-2 rounded-full shadow-lg hover:from-gray-700 hover:to-gray-800 hover:shadow-xl transition-all duration-300 transform hover:scale-110"
         >
           {collapsed ? <AiOutlineMenu size={18} /> : <AiOutlineClose size={18} />}
         </button>

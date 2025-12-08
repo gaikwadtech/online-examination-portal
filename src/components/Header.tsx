@@ -90,14 +90,14 @@ export default function Header() {
             <div className="flex items-center gap-3">
               <Link
                 href="/register"
-                className="rounded-md bg-blue-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+                className="rounded-md bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-1.5 text-sm font-medium text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105"
               >
                 Sign Up
               </Link>
 
               <Link
                 href="/login"
-                className="rounded-md bg-gray-100 px-4 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-200"
+                className="rounded-md bg-white px-4 py-1.5 text-sm font-medium text-gray-800 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105"
               >
                 Sign In
               </Link>
@@ -109,7 +109,7 @@ export default function Header() {
               <span className="text-sm font-medium">{user.name}</span>
               <button
                 onClick={handleLogout}
-                className="text-sm px-3 py-1 border rounded hover:bg-gray-50"
+                className="text-sm px-3 py-1 border border-gray-300 rounded-md hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:border-red-300 hover:text-red-600 transition-all duration-300 transform hover:scale-105"
               >
                 Logout
               </button>

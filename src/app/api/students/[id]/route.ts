@@ -7,12 +7,13 @@ import User from '@/models/User';
 // GET single student
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     
-    const student = await User.findById(params.id)
+    const student = await User.findById(id)
       .select('name email phone college group accountStatus registrationDate createdAt');
     
     if (!student) {
@@ -35,12 +36,13 @@ export async function GET(
 // PUT - Update student
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     
-    const { name, email, phone, college, group } = await request.json();
+    const { name, email, phone, college, group, accountStatus } = await request.json();
     
     // Validate required fields
     if (!name || !email) {
@@ -53,7 +55,7 @@ export async function PUT(
     // Check if email is taken by another user
     const existingUser = await User.findOne({ 
       email: email.toLowerCase(),
-      _id: { $ne: params.id }
+      _id: { $ne: id }
     });
     
     if (existingUser) {
@@ -64,13 +66,14 @@ export async function PUT(
     }
     
     const updatedStudent = await User.findByIdAndUpdate(
-      params.id,
+      id,
       { 
         name, 
         email: email.toLowerCase(),
         phone: phone || '',
         college: college || '',
         group: group || '',
+        accountStatus: accountStatus || 'Active',
       },
       { new: true }
     ).select('name email phone college group accountStatus registrationDate createdAt');
@@ -95,12 +98,13 @@ export async function PUT(
 // DELETE student
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     
-    const deletedStudent = await User.findByIdAndDelete(params.id);
+    const deletedStudent = await User.findByIdAndDelete(id);
     
     if (!deletedStudent) {
       return NextResponse.json(

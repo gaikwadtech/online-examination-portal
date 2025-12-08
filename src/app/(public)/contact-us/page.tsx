@@ -5,7 +5,7 @@ import { Mail, Phone, MapPin } from "lucide-react";
 
 export default function ContactUsPage() {
   return (
-    <div className="min-h-screen w-full bg-linear-to-b from-blue-50 to-white py-20 px-6">
+    <div className="min-h-screen w-full bg-gradient-to-b from-blue-50 to-white py-20 px-6">
 
       {/* Heading Section */}
       <motion.div
@@ -66,8 +66,8 @@ export default function ContactUsPage() {
             {/* Submit Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.9 }}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
+              whileTap={{ scale: 0.95 }}
+              className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-3 rounded-lg hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
             >
               Send Message
             </motion.button>
