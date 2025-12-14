@@ -39,7 +39,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const loadUser = () => {
-      const storedUser = localStorage.getItem("user");
+      const storedUser = sessionStorage.getItem("user");
       if (!storedUser) {
         router.push("/login");
         return;
@@ -66,7 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const handleLogout = () => {
     try {
-      localStorage.removeItem("user");
+      sessionStorage.removeItem("user");
     } catch {}
     router.push("/");
   };

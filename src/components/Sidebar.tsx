@@ -26,7 +26,7 @@ export default function Sidebar({ collapsed }: { collapsed: boolean }) {
 
   useEffect(() => {
     const loadRole = () => {
-      const storedUser = localStorage.getItem("user");
+      const storedUser = sessionStorage.getItem("user");
       if (storedUser) {
         try {
           const user: User = JSON.parse(storedUser);

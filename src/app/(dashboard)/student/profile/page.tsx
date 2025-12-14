@@ -57,7 +57,7 @@ export default function ProfilePage() {
   const getDevHeaders = useCallback((): HeadersInit => {
     try {
       if (typeof window === 'undefined') return {};
-      const stored = localStorage.getItem('user');
+      const stored = sessionStorage.getItem('user');
       if (!stored) return {};
       const parsed = JSON.parse(stored);
       if (parsed && parsed._id) {
@@ -106,7 +106,7 @@ export default function ProfilePage() {
       }
 
       try {
-        localStorage.setItem('user', JSON.stringify({ 
+        sessionStorage.setItem('user', JSON.stringify({ 
           _id: data._id, 
           name: data.name, 
           email: data.email,
@@ -115,7 +115,7 @@ export default function ProfilePage() {
         }));
         window.dispatchEvent(new Event("user-updated"));
       } catch (e) {
-        console.error('Error saving to localStorage:', e);
+        console.error('Error saving to sessionStorage:', e);
       }
     } catch (err) {
       console.error('fetchMe crash:', err);

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, CheckCircle, Clock, XCircle } from "lucide-react";
+import { Loader2, CheckCircle, Clock, XCircle, Trophy, BarChart, Calendar, Timer } from "lucide-react";
 
 export default function ExamResultPage() {
   const { examId } = useParams();
@@ -42,85 +42,128 @@ export default function ExamResultPage() {
 
   if (!data) {
     return (
-      <div className="p-8 text-center text-red-600">Result not available.</div>
+      <div className="p-8 text-center text-red-600 text-lg font-medium">Result not available.</div>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
+      {/* Header Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">{data.title || 'Exam Result'}</h1>
-          <p className="text-sm text-gray-600">{data.category}</p>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{data.title || 'Exam Result'}</h1>
+          <p className="text-gray-500 mt-1 font-medium">{data.category}</p>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">Completed</div>
-          <div className="font-medium">{new Date(data.completedAt).toLocaleString()}</div>
-        </div>
-      </div>
-
-      {/* Time Information */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <div className="text-sm text-gray-500">Started At</div>
-            <div className="font-medium">{data.startedAt ? new Date(data.startedAt).toLocaleString() : 'Not recorded'}</div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-500">Completed At</div>
-            <div className="font-medium">{new Date(data.completedAt).toLocaleString()}</div>
-          </div>
+        <div className="flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-xl text-gray-600 border border-gray-100">
+          <Calendar size={18} className="text-indigo-500" />
+          <span className="text-sm font-medium">Completed: {new Date(data.completedAt).toLocaleDateString()}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-500">Score</div>
-          <div className="text-2xl font-bold">{data.score} / {data.totalQuestions}</div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Score Card */}
+        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -mr-8 -mt-8 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-indigo-100 mb-2">
+              <Trophy size={20} />
+              <span className="font-medium text-sm">Total Score</span>
+            </div>
+            <div className="text-4xl font-bold tracking-tight">{data.score} <span className="text-xl opacity-70 fonte-normal">/ {data.totalQuestions}</span></div>
+          </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow">
-          <div className="text-sm text-gray-500">Percentage</div>
-          <div className="text-2xl font-bold">{Math.round(data.percentage)}%</div>
+        {/* Percentage Card */}
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-6 text-white shadow-lg shadow-blue-200 relative overflow-hidden group">
+          <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-24 h-24 bg-white opacity-10 rounded-full group-hover:scale-125 transition-transform duration-500"></div>
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-blue-100 mb-2">
+              <BarChart size={20} />
+              <span className="font-medium text-sm">Performance</span>
+            </div>
+            <div className="text-4xl font-bold tracking-tight">{Math.round(data.percentage)}%</div>
+          </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow flex flex-col justify-between">
-          <div>
-            <div className="text-sm text-gray-500">Result</div>
-            <div className={`text-2xl font-bold ${data.result === 'pass' ? 'text-green-600' : 'text-red-600'}`}>{data.result?.toUpperCase()}</div>
+        {/* Result Card */}
+        <div className={`rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group ${data.result === 'pass' ? 'bg-gradient-to-br from-emerald-500 to-green-500 shadow-green-200' : 'bg-gradient-to-br from-rose-500 to-red-600 shadow-rose-200'}`}>
+          <div className="absolute top-0 left-0 w-full h-full bg-black opacity-0 group-hover:opacity-5 transition-opacity"></div>
+          <div className="relative z-10">
+             <div className="flex items-center gap-2 text-white/80 mb-2">
+              {data.result === 'pass' ? <CheckCircle size={20} /> : <XCircle size={20} />}
+              <span className="font-medium text-sm">Outcome</span>
+            </div>
+            <div className="text-4xl font-bold tracking-tight uppercase">{data.result}</div>
           </div>
-          <div className="mt-2 text-sm text-gray-600">
-            Time Taken: {data.timeTakenSeconds ? 
-              `${Math.floor(data.timeTakenSeconds / 60)}m ${data.timeTakenSeconds % 60}s` : 
-              data.startedAt ? 
-                `${Math.floor((new Date(data.completedAt).getTime() - new Date(data.startedAt).getTime()) / 60000)}m ${((new Date(data.completedAt).getTime() - new Date(data.startedAt).getTime()) % 60000) / 1000}s` :
-                '-'
-            }
-          </div>
+        </div>
+        
+         {/* Time Card */}
+         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+           <div className="flex items-center gap-2 text-gray-500 mb-3">
+              <Timer size={20} className="text-orange-500" />
+              <span className="font-medium text-sm">Time Taken</span>
+            </div>
+            <div className="text-3xl font-bold text-gray-800 tracking-tight">
+               {data.timeTakenSeconds ? 
+                `${Math.floor(data.timeTakenSeconds / 60)}m ${data.timeTakenSeconds % 60}s` : 
+                data.startedAt ? 
+                  `${Math.floor((new Date(data.completedAt).getTime() - new Date(data.startedAt).getTime()) / 60000)}m ${((new Date(data.completedAt).getTime() - new Date(data.startedAt).getTime()) % 60000) / 1000}s` :
+                  '-'
+              }
+            </div>
         </div>
       </div>
+      
+      {/* Detailed Timeline & Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <Clock size={20} className="text-gray-400" />
+                Session Timeline
+             </h3>
+             <div className="space-y-4">
+                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 font-medium text-sm">Started</span>
+                    <span className="font-semibold text-gray-900">{data.startedAt ? new Date(data.startedAt).toLocaleString() : 'N/A'}</span>
+                 </div>
+                 <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-500 font-medium text-sm">Completed</span>
+                    <span className="font-semibold text-gray-900">{new Date(data.completedAt).toLocaleString()}</span>
+                 </div>
+             </div>
+          </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-sm text-gray-500">Correct / Wrong</div>
-            <div className="text-lg font-medium">{data.correctAnswers} / {data.wrongAnswers}</div>
+           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+             <h3 className="text-lg font-bold text-gray-800 mb-4">Answer Analysis</h3>
+             <div className="grid grid-cols-2 gap-4">
+                 <div className="p-4 bg-green-50 rounded-xl border border-green-100 text-center">
+                    <div className="text-3xl font-bold text-green-600 mb-1">{data.correctAnswers}</div>
+                    <div className="text-sm font-medium text-green-800">Correct</div>
+                 </div>
+                 <div className="p-4 bg-red-50 rounded-xl border border-red-100 text-center">
+                    <div className="text-3xl font-bold text-red-600 mb-1">{data.wrongAnswers}</div>
+                    <div className="text-sm font-medium text-red-800">Incorrect</div>
+                 </div>
+             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => router.push('/student/result')} 
-              className="px-4 py-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg hover:from-gray-200 hover:to-gray-300 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 font-medium"
-            >
-              Back
-            </button>
-            <button 
-              onClick={() => router.push(`/student/result/${examId}/review`)} 
-              className="px-4 py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white rounded-lg hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-medium"
-            >
-              Review Answers
-            </button>
-          </div>
-        </div>
+      </div>
+
+      {/* Action Footer */}
+      <div className="flex justify-end gap-4 mt-4 pt-4">
+         <button 
+           onClick={() => router.push('/student/result')} 
+           className="px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 font-semibold transition-all duration-200 shadow-sm"
+         >
+           Back to Exams
+         </button>
+         <button 
+           onClick={() => router.push(`/student/result/${examId}/review`)} 
+           className="px-6 py-3 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white rounded-xl hover:from-violet-700 hover:to-fuchsia-700 shadow-lg hover:shadow-xl hover:shadow-violet-200 transition-all duration-300 font-semibold flex items-center gap-2 transform hover:-translate-y-0.5"
+         >
+           Review Full Answers
+           <CheckCircle size={18} />
+         </button>
       </div>
     </div>
   );

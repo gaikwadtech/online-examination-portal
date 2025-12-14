@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
       // Update LocalStorage
       try {
-        localStorage.setItem("user", JSON.stringify({
+        sessionStorage.setItem("user", JSON.stringify({
           name: data.name,
           email: data.email,
           role: data.role || 'teacher',
@@ -82,7 +82,7 @@ export default function ProfilePage() {
         }));
         window.dispatchEvent(new Event("user-updated"));
       } catch (err) {
-        console.error("localStorage write failed", err);
+        console.error("sessionStorage write failed", err);
       }
     } catch (e) {
       console.error("Error fetching user:", e);
@@ -185,7 +185,7 @@ export default function ProfilePage() {
       
       // Update LocalStorage
       try {
-        localStorage.setItem("user", JSON.stringify({
+        sessionStorage.setItem("user", JSON.stringify({
           name: json.name,
           email: json.email,
           role: json.role || 'teacher',

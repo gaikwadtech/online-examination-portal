@@ -35,9 +35,10 @@ export async function POST(req: NextRequest, context: any) {
     }
     const studentId = decoded.id;
 
-    // ✅ get submitted answers
+    // ✅ get submitted answers and optional timeTaken
     const body = await req.json();
     const answers: Record<string, string> = body.answers || {};
+    const clientTimeTaken = body.timeTaken; // seconds from client
 
     // ✅ verify assignment exists and not already completed
     const assignment: any = await ExamAssignment.findOne({ studentId, examId });
@@ -122,10 +123,18 @@ export async function POST(req: NextRequest, context: any) {
     // -----------------------------
     const completedAt = assignment.completedAt || new Date();
     const startedAt = assignment.startedAt || completedAt;
-    const timeTakenSeconds = Math.max(
-      0,
-      Math.round((completedAt.getTime() - startedAt.getTime()) / 1000)
-    );
+    
+    // Use client provided time if available, otherwise fallback to date diff
+    // Also cap it at exam duration just in case
+    let timeTakenSeconds = 0;
+    if (typeof clientTimeTaken === 'number') {
+        timeTakenSeconds = clientTimeTaken;
+    } else {
+        timeTakenSeconds = Math.max(
+          0,
+          Math.round((completedAt.getTime() - startedAt.getTime()) / 1000)
+        );
+    }
 
     await ExamResult.findOneAndUpdate(
       { examId, studentId },

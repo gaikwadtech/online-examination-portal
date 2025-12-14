@@ -38,7 +38,7 @@ export default function FeaturesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-4 text-xl text-[#FFFFFF] max-w-2xl"
+          className="mt-4 text-xl text-white max-w-2xl font-bold drop-shadow-lg"
         >
           "Create, manage, and evaluate exams with complete transparency.
           Reliable tools that save time and reduce manual workload."
