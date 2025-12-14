@@ -84,7 +84,7 @@ export default function Footer() {
         >
           <h3 className="text-xl font-semibold mb-4">For Students</h3>
           <ul className="space-y-3 text-gray-300">
-            <li><Link href="/registe " className="hover:text-blue-400">Get Started</Link></li>
+            <li><Link href="/register" className="hover:text-blue-400">Get Started</Link></li>
             <li><Link href="/student-dashboard" className="hover:text-blue-400">Student Dashboard</Link></li>
           </ul>
         </motion.div>

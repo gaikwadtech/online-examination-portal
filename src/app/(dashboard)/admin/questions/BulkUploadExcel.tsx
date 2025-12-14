@@ -1,7 +1,19 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, DragEvent } from "react";
 import * as XLSX from "xlsx";
+import { 
+  UploadCloud, 
+  FileSpreadsheet, 
+  CheckCircle, 
+  AlertCircle, 
+  Download, 
+  ArrowLeft, 
+  X, 
+  FileText,
+  AlertTriangle,
+  Loader2
+} from "lucide-react";
 
 type RowPayload = {
   category: string;
@@ -18,16 +30,8 @@ export default function BulkUploadExcel({ onBack }: { onBack: () => void }) {
   const [validCount, setValidCount] = useState<number>(0);
   const [invalidCount, setInvalidCount] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-
-  // Helper to choose message color by contents
-  const messageColorClass = (msg: string | null) => {
-    if (!msg) return "bg-gray-50 text-gray-800";
-    const lower = msg.toLowerCase();
-    if (lower.includes("error") || lower.includes("failed") || lower.includes("invalid")) return "bg-rose-50 text-rose-800";
-    if (lower.includes("inserted") || lower.includes("import finished") || lower.includes("valid rows")) return "bg-emerald-50 text-emerald-800";
-    return "bg-yellow-50 text-yellow-800";
-  };
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning', text: string } | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const downloadTemplate = () => {
     const csv = `category,question,option1,option2,option3,option4,correctIndex
@@ -107,13 +111,11 @@ Science,What is water formula?,CO2,H2O,O2,N2,2
     return { rows, errors };
   };
 
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const processFile = async (f: File) => {
     setMessage(null);
     setRowsCount(0);
     setValidCount(0);
     setInvalidCount(0);
-    const f = e.target.files?.[0];
-    if (!f) return;
     setFileName(f.name);
 
     try {
@@ -123,17 +125,45 @@ Science,What is water formula?,CO2,H2O,O2,N2,2
       setInvalidCount(errors.length);
 
       if (errors.length) {
-        setMessage(`Parsing completed — ${rows.length} valid, ${errors.length} invalid. First error: ${errors[0]}`);
+        setMessage({ 
+          type: 'warning', 
+          text: `Parsing completed with issues. ${rows.length} valid rows found. First error: ${errors[0]}` 
+        });
       } else {
-        setMessage(`Parsing completed — ${rows.length} valid rows`);
+        setMessage({ 
+          type: 'success', 
+          text: `Successfully parsed ${rows.length} rows!` 
+        });
       }
 
       // store temporarily for import
       (window as any).__bulkParsedRows = rows;
     } catch (err: any) {
       console.error(err);
-      setMessage("Failed to parse file: " + (err?.message ?? String(err)));
+      setMessage({ type: 'error', text: "Failed to parse file: " + (err?.message ?? String(err)) });
     }
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) processFile(f);
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const f = e.dataTransfer.files?.[0];
+    if (f) processFile(f);
   };
 
   const importParsed = async () => {
@@ -142,7 +172,7 @@ Science,What is water formula?,CO2,H2O,O2,N2,2
     try {
       const rows: RowPayload[] = (window as any).__bulkParsedRows ?? [];
       if (!rows || rows.length === 0) {
-        setMessage("No parsed rows available. Please select an Excel/CSV file first.");
+        setMessage({ type: 'error', text: "No parsed rows available. Please select an Excel/CSV file first." });
         setLoading(false);
         return;
       }
@@ -156,22 +186,24 @@ Science,What is water formula?,CO2,H2O,O2,N2,2
       const body = await res.json().catch(() => ({ error: "Invalid JSON response" }));
 
       if (!res.ok) {
-        setMessage(`Server error: ${body?.error ?? res.statusText}`);
+        setMessage({ type: 'error', text: `Server error: ${body?.error ?? res.statusText}` });
       } else {
         const inserted = body.insertedCount ?? body.insertedIds?.length ?? rows.length;
         const errors = body.errors ?? [];
-        setMessage(`Import finished. Inserted: ${inserted}. ${errors.length ? `Errors: ${errors.length}` : ""}`);
+        setMessage({ 
+          type: 'success', 
+          text: `Import successful! Inserted: ${inserted}. ${errors.length ? `(${errors.length} skipped)` : ""}` 
+        });
+        
         (window as any).__bulkParsedRows = [];
         setRowsCount(0);
         setValidCount(0);
         setInvalidCount(0);
         setFileName(null);
-
-        // also clear file input so selecting same file again will trigger onChange
         if (fileRef.current) fileRef.current.value = "";
       }
     } catch (err: any) {
-      setMessage("Network error: " + (err?.message ?? String(err)));
+      setMessage({ type: 'error', text: "Network error: " + (err?.message ?? String(err)) });
     } finally {
       setLoading(false);
     }
@@ -184,107 +216,197 @@ Science,What is water formula?,CO2,H2O,O2,N2,2
     setValidCount(0);
     setInvalidCount(0);
     setMessage(null);
-
-    // RESET the file input value to allow selecting same file again
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
+    if (fileRef.current) fileRef.current.value = "";
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <div className="flex items-center justify-between mb-5">
+    <div className="max-w-6xl mx-auto p-8 min-h-screen">
+      
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
         <div>
-          <h3 className="text-2xl font-semibold text-slate-900">Bulk Upload (Excel / CSV)</h3>
-          <p className="text-sm text-slate-600 mt-1">Upload multiple questions at once. Use the template to format your file.</p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded shadow"
-            aria-label="Back to Questions"
+          <button 
+            onClick={onBack} 
+            className="flex items-center text-slate-500 hover:text-blue-600 transition-colors group mb-2"
           >
-            Back
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">Back to Question Bank</span>
           </button>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Bulk Question Upload</h1>
+          <p className="text-slate-500 mt-2 max-w-2xl">
+            Import multiple questions at once using our Excel/CSV template. Perfect for migrating large question sets.
+          </p>
         </div>
       </div>
 
-      <div className="rounded-md border border-slate-100 p-4 mb-4 bg-slate-50">
-        <div className="flex flex-col md:flex-row md:items-center gap-3">
-          <button
-            onClick={downloadTemplate}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow-sm"
-          >
-            Download Template (CSV)
-          </button>
-
-          {/* nicer file input */}
-          <label className="inline-flex items-center gap-2 bg-white border rounded px-3 py-2 cursor-pointer hover:shadow">
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".xlsx,.xls,.csv"
-              onChange={onFileChange}
-              className="hidden"
-            />
-            <svg className="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 0 0 2 2h14M16 3v4M8 3v4m8 4H8"/></svg>
-            <span className="text-sm text-slate-700">Choose file</span>
-          </label>
-
-          <div className="ml-auto flex items-center gap-3">
-            <div className="text-sm text-slate-700">
-              {fileName ? (
-                <>
-                  <div className="font-medium text-slate-900">{fileName}</div>
-                  <div className="text-xs text-slate-500">{rowsCount} rows — <span className="font-semibold text-emerald-700">{validCount} valid</span>, <span className="font-semibold text-rose-700">{invalidCount} invalid</span></div>
-                </>
-              ) : <span className="text-sm text-slate-500">No file selected</span>}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left Column: Actions */}
+        <div className="lg:col-span-2 space-y-6">
+          
+          {/* Step 1: Template */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                <FileSpreadsheet className="w-6 h-6 text-indigo-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-slate-800 mb-1">Step 1: Get the Template</h3>
+                <p className="text-slate-600 mb-4 text-sm leading-relaxed">
+                  Download our formatted template file. Fill it with your questions, ensuring you follow the required column structure.
+                  <br />
+                  <span className="text-slate-400 text-xs mt-1 block">
+                    Columns: category, question, option1-4, correctIndex (1-4)
+                  </span>
+                </p>
+                <button
+                  onClick={downloadTemplate}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors text-sm"
+                >
+                  <Download className="w-4 h-4" /> Download CSV Template
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-3 mb-3">
-        <button
-          onClick={importParsed}
-          disabled={loading || validCount === 0}
-          className={`px-4 py-2 rounded text-white shadow ${loading || validCount === 0 ? "bg-slate-300 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"}`}
-        >
-          {loading ? "Importing..." : `Import ${validCount} row(s)`}
-        </button>
+          {/* Step 2: Upload */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                <UploadCloud className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Step 2: Upload Your File</h3>
+                <p className="text-slate-600 text-sm">Drag and drop your filled Excel or CSV file here.</p>
+              </div>
+            </div>
 
-        <button
-          onClick={handleClear}
-          className="px-3 py-2 rounded bg-slate-100 hover:bg-slate-200 text-slate-800"
-        >
-          Clear
-        </button>
+            <label
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`relative flex flex-col items-center justify-center w-full h-64 rounded-xl border-2 border-dashed transition-all cursor-pointer overflow-hidden group ${
+                isDragOver 
+                  ? "border-blue-500 bg-blue-50/50" 
+                  : fileName 
+                    ? "border-emerald-300 bg-emerald-50/30" 
+                    : "border-slate-300 bg-slate-50/50 hover:bg-slate-50 hover:border-blue-400"
+              }`}
+            >
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                onChange={onFileChange}
+                className="hidden"
+              />
+              
+              {fileName ? (
+                <div className="text-center animate-in zoom-in-95 duration-200">
+                  <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-lg font-medium text-slate-900 mb-1">{fileName}</h4>
+                  <p className="text-sm text-slate-500">File ready for processing</p>
+                  <button 
+                    onClick={(e) => { e.preventDefault(); handleClear(); }}
+                    className="mt-4 text-xs font-medium text-red-500 hover:text-red-700 hover:underline"
+                  >
+                    Remove File
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center p-6">
+                  <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-colors ${isDragOver ? 'bg-blue-100 text-blue-600' : 'bg-white shadow-sm text-slate-400 group-hover:text-blue-500'}`}>
+                    <UploadCloud className="w-8 h-8" />
+                  </div>
+                  <p className="text-lg font-medium text-slate-700 mb-1">
+                    {isDragOver ? "Drop file now!" : "Click or Drag File Here"}
+                  </p>
+                  <p className="text-sm text-slate-400">Supports .xlsx, .xls, .csv</p>
+                </div>
+              )}
+            </label>
+          </div>
+        </div>
 
-        <div className="ml-auto text-sm text-slate-600">
-          Tip: <span className="font-mono">correctIndex</span> in the spreadsheet is <strong>1-based</strong> (1 = first option).
-        </div>
-      </div>
+        {/* Right Column: Status & Action */}
+        <div className="space-y-6">
+          
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm h-full flex flex-col">
+            <h3 className="text-lg font-semibold text-slate-800 mb-6 flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-emerald-500" />
+              Processing Status
+            </h3>
 
-      {message && (
-        <div className={`mt-3 p-3 rounded ${messageColorClass(message)}`}>
-          <div className="text-sm">{message}</div>
-        </div>
-      )}
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 gap-4 mb-6">
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                <span className="text-sm font-medium text-slate-600">Total Rows</span>
+                <span className="text-xl font-bold text-slate-800">{rowsCount}</span>
+              </div>
+              <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex items-center justify-between">
+                <span className="text-sm font-medium text-emerald-700">Valid</span>
+                <span className="text-xl font-bold text-emerald-700">{validCount}</span>
+              </div>
+              <div className="bg-rose-50 rounded-xl p-4 border border-rose-100 flex items-center justify-between">
+                <span className="text-sm font-medium text-rose-700">Invalid</span>
+                <span className="text-xl font-bold text-rose-700">{invalidCount}</span>
+              </div>
+            </div>
 
-      {/* optional quick status badges */}
-      <div className="mt-4 flex gap-2 items-center">
-        <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1 rounded text-sm">
-          <strong>{validCount}</strong>
-          <span>valid</span>
-        </div>
-        <div className="inline-flex items-center gap-2 bg-rose-50 text-rose-800 px-3 py-1 rounded text-sm">
-          <strong>{invalidCount}</strong>
-          <span>invalid</span>
-        </div>
-        <div className="inline-flex items-center gap-2 bg-slate-50 text-slate-700 px-3 py-1 rounded text-sm">
-          <strong>{rowsCount}</strong>
-          <span>total</span>
+            {/* Message Area */}
+            {message && (
+              <div className={`mb-6 p-4 rounded-xl text-sm flex gap-3 ${
+                message.type === 'error' ? 'bg-red-50 text-red-800 border-red-100' :
+                message.type === 'warning' ? 'bg-amber-50 text-amber-800 border-amber-100' :
+                'bg-emerald-50 text-emerald-800 border-emerald-100'
+              } animate-in fade-in slide-in-from-bottom-2`}>
+                {message.type === 'error' && <AlertCircle className="w-5 h-5 shrink-0" />}
+                {message.type === 'warning' && <AlertTriangle className="w-5 h-5 shrink-0" />}
+                {message.type === 'success' && <CheckCircle className="w-5 h-5 shrink-0" />}
+                <div>{message.text}</div>
+              </div>
+            )}
+
+            <div className="mt-auto pt-6 border-t border-slate-100 space-y-3">
+              <button
+                onClick={importParsed}
+                disabled={loading || validCount === 0}
+                className={`w-full py-3.5 px-4 rounded-xl font-bold text-white shadow-lg shadow-blue-500/20 transition-all flex items-center justify-center gap-2 ${
+                  loading || validCount === 0 
+                  ? "bg-slate-300 cursor-not-allowed shadow-none" 
+                  : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 hover:-translate-y-0.5"
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Importing...
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud className="w-5 h-5" />
+                    Import {validCount > 0 ? `${validCount} Questions` : "Questions"}
+                  </>
+                )}
+              </button>
+
+              {rowsCount > 0 && (
+                <button
+                  onClick={handleClear}
+                  disabled={loading}
+                  className="w-full py-3 px-4 rounded-xl font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Clear & Start Over
+                </button>
+              )}
+            </div>
+            
+            <p className="text-center text-xs text-slate-400 mt-4">
+              Note: Invalid rows will be skipped automatically during import.
+            </p>
+          </div>
         </div>
       </div>
     </div>

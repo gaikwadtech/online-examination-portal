@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       const response = NextResponse.json(
         {
           message: "Admin login successful",
-          user: { name: ADMIN_USER.name, email: ADMIN_USER.email, role: "teacher" }, // ✅ return user info
+        user: { name: ADMIN_USER.name, email: ADMIN_USER.email, role: "teacher", photo: ADMIN_USER.photo }, // ✅ return user info
         },
         { status: 200 }
       );
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json(
       {
         message: "Login successful",
-        user: { name: user.name, email: user.email, role: user.role }, // ✅ return user info
+        user: { name: user.name, email: user.email, role: user.role, photo: user.photo }, // ✅ return user info
       },
       { status: 200 }
     );

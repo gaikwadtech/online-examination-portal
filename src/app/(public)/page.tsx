@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import ImpactStats from "@/components/ImpactStats";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center">
 
       {/* HERO SECTION */}
-      <section className="relative w-full overflow-hidden bg-linear-to-br from-blue-50 via-white to-blue-100 px-4 py-24 text-center md:py-36">
+      <section className="relative w-full overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4 py-24 text-center md:py-36">
 
         {/* Background Blur Circles */}
         <div className="absolute top-10 left-10 h-48 w-48 rounded-full bg-blue-300 opacity-30 blur-3xl"></div>
@@ -42,14 +43,14 @@ export default function HomePage() {
         >
           <Link
             href="/register"
-            className="rounded-xl bg-blue-600 px-8 py-3 text-lg font-semibold text-white shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all"
+            className="rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-8 py-3 text-lg font-semibold text-white shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 transform"
           >
             Get Started
           </Link>
 
           <Link
             href="/login"
-            className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-gray-800 shadow-lg hover:bg-gray-100 hover:shadow-xl transition-all border"
+            className="rounded-xl bg-white px-8 py-3 text-lg font-semibold text-gray-800 shadow-lg hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:shadow-xl hover:scale-105 transition-all duration-300 transform border border-gray-200"
           >
             Sign In
           </Link>
@@ -69,8 +70,8 @@ export default function HomePage() {
 
             {/* Card 1 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-green-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-emerald-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Mock Tests</h3>
               <p className="mt-4 text-gray-600">
@@ -80,8 +81,8 @@ export default function HomePage() {
 
             {/* Card 2 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-blue-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-blue-100 via-indigo-50 to-purple-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-blue-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Role-Based Access</h3>
               <p className="mt-4 text-gray-600">
@@ -91,8 +92,8 @@ export default function HomePage() {
 
             {/* Card 3 */}
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="rounded-2xl bg-pink-100 p-8 shadow-xl hover:shadow-2xl transition-all border"
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="rounded-2xl bg-gradient-to-br from-pink-100 via-rose-50 to-fuchsia-100 p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-pink-200"
             >
               <h3 className="text-2xl font-bold text-gray-900">Instant Results</h3>
               <p className="mt-4 text-gray-600">
@@ -103,32 +104,45 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    <section className="section">
-  <div className="container">
-    <div className="left">
-      <h2>Let's save trees together 🌿</h2>
-      <p>
-        Choose online assessments with Testportal and reduce your ecological
-        footprint. Help us save trees and water for future generations.
-      </p>
-    </div>
+    <section 
+      className="relative w-full pt-20 pb-[500px] overflow-hidden" 
+      style={{
+        backgroundImage: "url('/tree.png')",
+        backgroundSize: "100% auto", // Ensure full width
+        backgroundPosition: "bottom center",
+        backgroundRepeat: "no-repeat"
+      }}
+    >
+        <div className="mx-auto max-w-7xl px-6 flex flex-col lg:flex-row items-start justify-between gap-16 relative z-10">
+            
+            {/* Left Content */}
+            <div className="lg:w-5/12 pt-4">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <div className="flex items-center gap-3 mb-6">
+                        <h2 className="text-4xl font-extrabold text-[#014751]">Let's save trees together</h2>
+                        {/* Leaf Icon from User Snippet */}
+                        <svg width="34" height="32" viewBox="0 0 34 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.3781 22.1762C12.9382 22.3997 13.4877 21.8527 13.302 21.2707C12.0277 17.2757 7.41409 15.7854 3.12517 19.3298C0.869151 21.1944 0.0213835 21.5906 0 21.6006C1.48728 23.1134 3.1864 28.1902 6.89451 28.7516C10.9793 29.5051 14.5945 25.4164 11.6367 23.5454C9.69149 22.3151 7.4012 21.6004 4.94622 21.6004C7.51994 21.0102 10.0893 21.2633 12.3781 22.1762Z" fill="#014751"></path>
+                            <path d="M30.875 19.3296C23.4716 13.2114 18.7501 22.86 21.6849 21.9035C23.7694 21.2243 26.0481 21.0763 28.3339 21.6005C24.4611 21.6005 20.8911 23.4062 18.5109 26.3453C18.7064 21.7264 19.002 18.8352 19.3448 16.6845C21.3231 16.6154 23.9598 14.99 25.4078 12.146C27.9041 7.60089 26.7464 2.94063 26.3739 0C24.4234 1.93245 15.9028 -0.331872 12.525 5.55696C11.0329 8.15829 11.4666 11.3238 13.0362 13.6403C13.5331 14.3736 14.7211 14.0217 14.755 13.1318C14.9024 9.26039 16.7962 6.33543 20.3268 4.71539C18.7425 6.80378 17.7023 9.14188 17.1649 11.5585C16.3296 15.323 15.4572 17.7924 15.1368 29.791C15.1043 31.0079 16.0732 32.0151 17.2696 31.9998C18.1357 31.9887 18.8776 31.4296 19.2107 30.6161C19.7173 29.3789 20.5418 28.0984 21.8835 26.9253C23.1585 28.3591 25.0987 29.122 27.1062 28.7516C30.7985 28.1926 32.5217 23.1048 34.0006 21.6003C33.979 21.5906 33.1311 21.1944 30.875 19.3296Z" fill="#014751"></path>
+                        </svg>
+                    </div>
+                    <p className="text-lg text-gray-500 leading-relaxed font-medium">
+                        Choose online assessments with TestEdge and reduce your ecological
+                        footprint. Help us save trees and water for future generations.
+                    </p>
+                </motion.div>
+            </div>
 
-    <div className="right">
-      <p>Number of answers given: <span>1,390,358,211</span></p>
-      <hr />
-      <p>Avg. number of questions per sheet: <span>5</span></p>
-      <hr />
-      <p>Sheets from one tree: <span>8,000</span></p>
-      <hr />
-      <p className="trees-saved">Trees saved  =  </p>
-      <p className="big-number">34,758</p>
-    </div>
-  </div>
-
-  <div className="image-container">
-    <img src="/tree.png" alt="Trees" />
-  </div>
-</section>
+            {/* Right Logic / Stats */}
+            <div className="lg:w-7/12 w-full">
+                 <ImpactStats />
+            </div>
+        </div>
+    </section>
 
 {/* TOP MNC SCROLLER SECTION */}
 <section className="w-full bg-white py-16 overflow-hidden -mt-10">
@@ -176,7 +190,7 @@ export default function HomePage() {
     </div>
   </div>
 </section>
-<section className="w-full bg-linear-to-r from-purple-50 via-blue-50 to-pink-50 py-20">
+<section className="w-full bg-gradient-to-r from-purple-50 via-blue-50 to-pink-50 py-20">
   <div className="max-w-7xl mx-auto px-6 text-center">
     <h2 className="text-4xl font-bold text-gray-900 mb-6 animate-fadeIn">
       Who It's For
@@ -187,24 +201,33 @@ export default function HomePage() {
     </p>
 
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="bg-linear-to-br from-yellow-100 to-yellow-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-yellow-800">Students</h3>
-        <p className="text-yellow-900">Track progress, take exams, and view results easily.</p>
-      </div>
-      <div className="bg-linear-to-br from-green-100 to-green-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-green-800">Teachers</h3>
-        <p className="text-green-900">Manage exams, students, and analyze performance efficiently.</p>
-      </div>
-      <div className="bg-linear-to-br from-purple-100 to-purple-200 p-6 rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition duration-500">
-        <h3 className="text-xl font-semibold mb-2 text-purple-800">Institutions</h3>
-        <p className="text-purple-900">Oversee and improve learning outcomes across your organization.</p>
-      </div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-amber-100 via-yellow-50 to-orange-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-amber-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-amber-800">Students</h3>
+        <p className="text-amber-900">Track progress, take exams, and view results easily.</p>
+      </motion.div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-emerald-100 via-green-50 to-teal-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-emerald-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-emerald-800">Teachers</h3>
+        <p className="text-emerald-900">Manage exams, students, and analyze performance efficiently.</p>
+      </motion.div>
+      <motion.div 
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="bg-gradient-to-br from-violet-100 via-purple-50 to-fuchsia-100 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-violet-200"
+      >
+        <h3 className="text-xl font-semibold mb-2 text-violet-800">Institutions</h3>
+        <p className="text-violet-900">Oversee and improve learning outcomes across your organization.</p>
+      </motion.div>
     </div>
   </div>
 </section>
 
 {/* BENEFITS FOR SCHOOLS / INSTITUTES */}
-<section className="w-full py-20 bg-linear-to-br from-blue-50 via-white to-blue-100">
+<section className="w-full py-20 bg-gradient-to-br from-blue-50 via-white to-blue-100">
   <div className="mx-auto max-w-7xl px-6">
 
     <motion.h2

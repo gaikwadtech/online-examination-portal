@@ -38,7 +38,7 @@ export default function FeaturesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-4 text-xl text-[#FFFFFF] max-w-2xl"
+          className="mt-4 text-xl text-white max-w-2xl font-bold drop-shadow-lg"
         >
           "Create, manage, and evaluate exams with complete transparency.
           Reliable tools that save time and reduce manual workload."
@@ -129,7 +129,7 @@ export default function FeaturesPage() {
           animate={{ scale: 1, opacity: 1 }}
           whileHover={{ scale: 1.1 }}
           transition={{ delay: 0.5, duration: 0.4 }}
-          className="inline-block bg-white text-indigo-700 font-semibold px-8 py-3 rounded-lg shadow-md hover:bg-indigo-200 transition"
+          className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-2xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300"
         >
           Get Started Today
         </motion.a>

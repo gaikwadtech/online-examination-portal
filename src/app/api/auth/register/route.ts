@@ -6,14 +6,19 @@ import { createToken } from "@/lib/auth";
 
 export async function POST(request: Request) {
   try {
-    // 1. Connect to the database
     await dbConnect();
 
-    // 2. Get data from the request body
-    const { name, email, password } = await request.json(); // remove role from request
+    const { name, email, password, phone = "", college = "", group = "" } = await request.json();
 
-    // 3. Validate that the email does not already exist
-    const existingUser = await User.findOne({ email });
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { message: "Name, email, and password are required" },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
       return NextResponse.json(
         { message: "User with this email already exists" },
@@ -21,38 +26,45 @@ export async function POST(request: Request) {
       );
     }
 
-    // 4. Implement bcrypt password hashing
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 5. Create and save the new user (role forced as 'student')
     const newUser = new User({
-      name,
-      email,
+      name: String(name).trim(),
+      email: normalizedEmail,
       password: hashedPassword,
-      role: "student", // force student role
+      role: "student",
+      phone: phone?.toString().trim?.() || "",
+      college: college?.toString().trim?.() || "",
+      group: group?.toString().trim?.() || "",
     });
 
     await newUser.save();
 
-    // 6. Create the token
     const token = await createToken(newUser);
 
-    // 7. Send a success response AND set the cookie
+    const safeUser = {
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+      phone: newUser.phone || "",
+      college: newUser.college || "",
+      group: newUser.group || "",
+    };
+
     const response = NextResponse.json(
-      { message: "User registered successfully" },
+      { message: "User registered successfully", user: safeUser },
       { status: 201 }
     );
 
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 
     return response;
-
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
