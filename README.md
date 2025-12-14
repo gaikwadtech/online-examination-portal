@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TestEdge - Online Examination Portal
 
-## Getting Started
+![TestEdge Banner](/public/logo111.png)
 
-First, run the development server:
+
+**TestEdge** is a comprehensive, secure, and modern online examination platform designed to streamline the assessment process for educational institutions and students. Built with the latest web technologies, it offers a seamless experience for creating, managing, and conducting exams with real-time analytics.
+
+---
+
+## 🚀 Key Features
+
+### 🎓 For Students
+
+- **Intuitive Exam Interface**: Distraction-free exam environment with split-screen layout.
+- **Real-Time Analytics**: Instant feedback and detailed performance reports after exam completion.
+- **Profile Management**: Manage personal details and track academic progress.
+- **Secure Testing**: Automatic session management and tab-switch monitoring (optional configuration).
+
+### 👨‍🏫 For Administrators
+
+- **Comprehensive Dashboard**: At-a-glance view of total students, active exams, and recent activities.
+- **Exam Management**: Create and configure exams with various question types (MCQs, coding, etc.).
+- **Question Bank**: Organized repository for managing questions efficiently.
+- **User Management**: easily manage student enrollments and profiles.
+- **Reports & Insights**: Generate detailed reports on student performance and exam difficulty.
+
+### 🌍 Eco-Friendly Impact
+
+- **"Trees Saved" Analytics**: Tracks the environmental impact of switching to digital exams by calculating paper saved.
+
+---
+
+## 🛠️ Technology Stack
+
+This project is built using a modern full-stack architecture:
+
+- **Frontend**: [Next.js 14+](https://nextjs.org/) (App Router), [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/) (Animations)
+- **Backend**: Next.js API Routes (Serverless)
+- **Database**: [MongoDB](https://www.mongodb.com/) with [Mongoose](https://mongoosejs.com/)
+- **Authentication**: Custom secure session handling (`sessionStorage` & JWT)
+- **Icons**: [Lucide React](https://lucide.dev/)
+
+---
+
+## 📂 Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+/src
+├── app
+│   ├── (auth)          # 🔒 Public authentication routes
+│   ├── (dashboard)     # 💻 Protected layouts (Admin, Student)
+│   ├── (public)        # 🌐 Public marketing/info pages
+│   └── api             # ⚙️ Backend API endpoints
+├── components          # 🧱 Reusable UI components
+├── lib                 # 🧩 Utility functions, DB connections
+├── models              # 💾 Mongoose database schemas
+└── styles              # 🎨 Global styles
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ⚡ Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Follow these steps to set up the project locally.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prerequisites
 
-## Learn More
+- Node.js (v18 or higher)
+- MongoDB (Local or Atlas URL)
 
-To learn more about Next.js, take a look at the following resources:
+### Installation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **Clone the repository:**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    ```bash
+    git clone https://github.com/gaikwadtech/online-examination-portal.git
+    cd online-examination-portal
+    ```
 
-## Deploy on Vercel
+2.  **Install dependencies:**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    ```bash
+    npm install
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3.  **Configure Environment Variables:**
+    Create a `.env.local` file in the root directory and add the following:
+```bash
+    MONGODB_URI = 
+    JWT_SECRET =
+    EMAIL_USER =
+    EMAIL_PASS =
+
+    Example :- 
+    MONGODB_URI = mongodb://localhost:27017/online-examination-portal
+    JWT_SECRET = mysecretkey12345
+    EMAIL_USER = pmg14@gmail.com
+    EMAIL_PASS = rshhpcmcacojeqrh
+```
+
+4.  **Run the development server:**
+
+    ```bash
+    npm run dev
+    ```
+
+5.  **Open the app:**
+
+    Visit [http://localhost:5050](http://localhost:5050) in your browser.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1.  Fork the project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
+
+---
+
+
+Built with ❤️ by **TestEdge Team**.
