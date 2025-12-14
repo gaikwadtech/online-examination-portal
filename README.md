@@ -48,16 +48,20 @@ This project is built using a modern full-stack architecture:
 ```bash
 /src
 ├── app
-│   ├── (auth)          # 🔒 Public authentication routes
-│   ├── (dashboard)     # 💻 Protected layouts (Admin, Student)
-│   ├── (public)        # 🌐 Public marketing/info pages
-│   └── api             # ⚙️ Backend API endpoints
-├── components          # 🧱 Reusable UI components
-├── lib                 # 🧩 Utility functions, DB connections
-├── models              # 💾 Mongoose database schemas
-└── styles              # 🎨 Global styles
+│   ├── (auth)          # 🔒 Public authentication routes
+│   ├── (dashboard)     # 💻 Protected layouts (Admin, Student)
+│   ├── (public)        # 🌐 Public marketing/info pages
+│   └── api             # ⚙️ Backend API endpoints
+├── components          # 🧱 Reusable UI components
+├── lib                 # 🧩 Utility functions, DB connections
+├── models              # 💾 Mongoose database schemas
+└── styles              # 🎨 Global styles
+
+
+
 ```
 
+---
 ## ⚡ Getting Started
 
 Follow these steps to set up the project locally.
@@ -83,19 +87,14 @@ Follow these steps to set up the project locally.
     ```
 
 3.  **Configure Environment Variables:**
-    Create a `.env.local` file in the root directory and add the following:
-```bash
-    MONGODB_URI = 
-    JWT_SECRET =
-    EMAIL_USER =
-    EMAIL_PASS =
+    Create a `.env.local` file in the root directory and add the following (using your actual values):
 
-    Example :- 
-    MONGODB_URI = mongodb://localhost:27017/online-examination-portal
-    JWT_SECRET = mysecretkey12345
-    EMAIL_USER = pmg14@gmail.com
-    EMAIL_PASS = rshhpcmcacojeqrh
-```
+    ```env
+    MONGODB_URI=mongodb://localhost:27017/online-examination-portal
+    JWT_SECRET=mysecretkey12345
+    EMAIL_USER=example-pmg14@gmail.com
+    EMAIL_PASS=example-rshhpcmcacojeqrh
+    ```
 
 4.  **Run the development server:**
 
@@ -121,5 +120,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 Built with ❤️ by **TestEdge Team**.
